@@ -1,1 +1,3 @@
-# EECS581Project3
+# EECS581: Software Engineering II
+
+## Project 3
