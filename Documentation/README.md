@@ -6,5 +6,5 @@ For Project 3: Requirements, please see the first tab for the Agile Reference St
 
 ### Directory Explanations
 
-misc\_doc
+misc\_doc\
     This contains smaller mini documents that may be printed information from console that could serve useful in either debugging or general documentation
