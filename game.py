@@ -1,3 +1,11 @@
+'''
+    Name(s): Ian Ruebelmann
+    Creation Date: October 30th, 2026
+    Project: Project 1 - Minesweeping Game
+    File Description: This is the backend/gameplay function section. It is responsible for building a grid and providing helper
+    functions to give proper responses to actions taken in gameplay, providing the corresponding gamestates.
+'''
+
 import random
 
 ANSWER_LIST = []
@@ -30,14 +38,17 @@ def StartGame():
         
     final_word = GetRandomAnswer()
     guess_count = 5
+    guesses = []
 
     for i in range(guess_count):
         valid_guess = false
 
-        while valid_guess = false:
+        while valid_guess == false:
             # Guess needs to be accepted somehow
             guess =  ""
-            valid_guess = VALIDATE_GUESS(guess)
+            valid_guess = VALIDATE_GUESS(guess, guesses)
+
+        guesses.append(guess)
 
         if guess == final_word:
             # Win Condition
@@ -75,15 +86,19 @@ def GetRandomAnswer():
     Function to use binary search to check if a guess is valid
 
     Inputs:
-        A 5 letter lowercase word that we want to test if is in the VALIDATION_LIST
+        guess: A 5 letter lowercase word that we want to test if is in the VALIDATION_LIST
+        past_guesses: a list of previous guesses
 
     Outputs:
-        True: word is in the VALIDATION_LIST
-        False: word is not in the VALIDATION_LIST
+        True: word is in the VALIDATION_LIST and not already guessed
+        False: word is not in the VALIDATION_LIST or already guessed
 
     (Ian Ruebelmann, 10/30/26)
 '''
-def ValidateGuess(guess):
+def ValidateGuess(guess, past_guesses):
+    if guess in past_guesses:
+        return False
+        
     low = 0
     high = len(VALIDATION_LIST) - 1
     while low <= high:
