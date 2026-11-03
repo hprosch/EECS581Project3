@@ -90,6 +90,8 @@ def GetRandomAnswer():
     Inputs:
         guess: A 5 letter lowercase word that we want to test if is in the VALIDATION_LIST
         past_guesses: a list of previous guesses
+        is_hardmode: a boolean that indicates if the game is in hardmode
+        correct_answer: a string representing the final word goal, is only needed if hardmode = True
 
     Outputs:
         True: word is in the VALIDATION_LIST and not already guessed
@@ -97,11 +99,14 @@ def GetRandomAnswer():
 
     (Ian Ruebelmann, 10/30/26)
 '''
-def ValidateGuess(guess, past_guesses, is_hardmode = False):
+def ValidateGuess(guess, past_guesses, is_hardmode = False, correct_answer = ""):
     if guess in past_guesses:
         return False
 
-    if is_hardmode and ValidateHardmode(guess, past_guesses) == False:
+    if is_hardmode and correct_answer == "":
+        raise ("ensure correct_answer is set to a value if is_hardmode = True")
+
+    if is_hardmode and ValidateHardmode(guess, past_guesses, correct_answer) == False:
         return False
         
     low = 0
@@ -123,6 +128,7 @@ def ValidateGuess(guess, past_guesses, is_hardmode = False):
     Inputs:
         guess: A 5 letter lowercase word we are checking if is valid
         past_guesses: a list of previous guesses that have been made
+        correct_answer: the final answer
 
     Output:
         Boolean indicating if the guess is valid
@@ -130,10 +136,10 @@ def ValidateGuess(guess, past_guesses, is_hardmode = False):
     (Ian Ruebelmann, 11/3/26)
 '''
 
-def ValidateHardmode(guess, past_guesses):
+def ValidateHardmode(guess, past_guesses, correct_answer):
     if len(guesses) == 0:
         return True
-    clues = check(guesses[-1]) # replace check with forest's function
+    clues = Guess(guesses[-1], correct_answer) # replace check with forest's function
 
     # Check if all the greens are in the same spot as the previous guess
     for i in range(len(guess)):
@@ -161,31 +167,40 @@ inputs: user guess (string), correct_answer (string).
 Output: Changed dictionary (CHARACTERS), along with a List of 1,2,3, corresponding to what color to show at each space 
 
 (Forest Denton, 11/3/26)
+
+Edited function to word with duplicate greens and yellows
+
+(Ian Ruebelmann, 11/3/26)
 """
 def Guess(guess, correct_answer):
-    already_picked_letters = []  # Only used for double letters (If guessed "GREEN" but word was "TREND", only 1 E
-                                 # should be Green or yellow, the other one will be grey
-    return_colors = []
-    for index in range(0,len(guess)):
-        if guess[index] not in correct_answer: # if the letter isn't in the correct answer
-            already_picked_letters.append(guess[index]) # make sure we keep track of that it's guessed
-            return_colors.append(1) # Color for the letter not being in the final word
+    
+    return_colors = ['_','_','_','_','_'] # our output array
+
+    # Split out strings into lists to support item assignment
+    guess = list(guess)
+    correct_answer = list(correct_answer)
+
+    # check for greens
+    for index in range(len(guess)):
+        if guess[index] == correct_answer[index]:
+            return_colors[index] = 3  # Color for the letter being in the right position
+            correct_answer[index] = '_' # Mark the letter off so that it can't be counted more than once
+            guess[index] = '-'
+            CHARACTERS[guess[index]] = 3  # Updating the global dictionary
+
+    # check for yellows
+    for index in range(len(guess)):
+        if guess[index] in correct_answer:
+            return_colors[index] = 2 # Color for the letter being in the final word
+            correct_answer[correct_answer.index(guess[index])] = '_'
+            guess[index] = '-'
+            CHARACTERS[guess[index]] = 2  # Updating the global dictionary
+
+    # mark the rest as grey
+    for index in range(len(guess)):
+        if guess[index] != '-': # if the letter isn't in the correct answer
+            return_colors[index] = 1 # Color for the letter not being in the final word
             CHARACTERS[guess[index]] = 1 # Updating the global dictionary
-
-        else: # We now know the letter is somewhere in the word, now we just worry about where:
-            if guess[index] == correct_answer[index]:
-                already_picked_letters.append(guess[index])  # make sure we keep track of that it's guessed
-                return_colors.append(3)  # Color for the letter being in the right position
-                CHARACTERS[guess[index]] = 3  # Updating the global dictionary
-
-            else: # if it's a yellow character, we need to check and ensure doubles don't mess things up:
-                # TODO
-                already_picked_letters.append(guess[index])  # make sure we keep track of that it's guessed
-                return_colors.append(2)  # Color for the letter being in the right position
-                CHARACTERS[guess[index]] = 2  # Updating the global dictionary
 
 
     return return_colors
-
-
-
