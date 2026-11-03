@@ -95,8 +95,11 @@ def GetRandomAnswer():
 
     (Ian Ruebelmann, 10/30/26)
 '''
-def ValidateGuess(guess, past_guesses):
+def ValidateGuess(guess, past_guesses, is_hardmode = False):
     if guess in past_guesses:
+        return False
+
+    if is_hardmode and ValidateHardmode(guess, past_guesses) == False:
         return False
         
     low = 0
@@ -111,3 +114,30 @@ def ValidateGuess(guess, past_guesses):
             high = mid - 1
 
     return False
+
+def ValidateHardmode(guess, past_guesses):
+    if len(guesses) == 0:
+        return True
+    clues = check(guesses[-1]) # replace check with forest's function
+
+    # Check if all the greens are in the same spot as the previous guess
+    for i in range(len(guess)):
+        if clues[i] == 3:
+            if guess[i] != guesses[-1][i]:
+                return False
+            guess[i] = "_"  # This assumes we have been given a copy of guess, we dont want to change the original
+
+    # Check if all the yellows from the previous guess are used
+    for i in range(len(guess)):
+        if clues[i] == 2:
+            for j in range(len(guess)):
+                if guess[j] == guesses[-1][i]:
+                    guess[j] = "_"
+                    break  # This break is ment to break out of the j loop, make sure it does
+                if j == 4:
+                    return False
+
+    # If we get here we are good
+    return True
+
+
