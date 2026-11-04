@@ -1,0 +1,22 @@
+/* 'body' targets the body element in HTML*/
+body {
+    /* body makes the front Arial and the text center aligned*/
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.board {
+    /* utilize a grid display with 5 collumns centered*/
+    display: grid;
+    grid-template-columns: repeat(5,52px);
+    gap: 6px;
+    justify-content: center;
+}
+
+/* this is the size, shape, and certain design of the tiles*/
+.tile {
+    width: 52px;
+    height: 52px;
+    border: 2px solid #888;
+    box-sizing: border-box;
+}
