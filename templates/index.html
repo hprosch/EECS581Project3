@@ -2,12 +2,20 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scare=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Wordle</title>
-	<link> rel="stylesheet"</link>
+	<!--links external source, CSS Stylesheet, to HTML -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 	<h1>Wordle</h1>
-	<p>Flask is working</p>
+	<!--creates css class-->
+	<div class="board">
+		<!--essentially creates 30 different <div> eleemnts-->
+		{% for i in range(30) %}
+		<!--There are 30 instances of the class tile and it has an index assigned to it-->
+		<div class="tile" data-index="{{ i }}"></div>
+		{% endfor %}
+	</div>
 </body>
 </html>
