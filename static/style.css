@@ -59,3 +59,26 @@ body {
     flex: 1.6;
     font-size: 10px;
 }
+
+/* when an HTML element has both tile and absent, or key and absent, it recieves the gray styling representing absent */
+.tile.absent, .key.absent{
+    background-color: #787c7e;
+    color: white;
+}
+
+/* when HTML elemnt has both tile and present, or key and present, it recieves the yellow styling representing present */
+.tile.present, .key.present{
+    background-color: #c9b458;
+    color: white;
+}
+
+/* when HTML element has both tile and correct, or key and correct, it receives the green styling representing correct  */
+.tile.correct, .key.correct{
+    background-color: #6aaa64;
+    color: white;
+}
+
+/* when HTML has tile and absent, or tile and present, or tile and correct, make the border color transparent */
+.tile.absent, .tile.present, .tile.correct{
+    border-color: transparent;
+}
