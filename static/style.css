@@ -20,3 +20,42 @@ body {
     border: 2px solid #888;
     box-sizing: border-box;
 }
+
+/*keybaord with given width/max width, as well as margin being center automatically with 25px above it and 0px below it*/
+.keyboard{
+    width: 100%;
+    max-width: 500px;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0;
+}
+
+/* keyboard row utilizes Flexbox, places button horizontally instead of vertical by default*/
+.keyboard-row{
+    display: flex;
+    gap: 4px;
+    margin-bottom: 5px;
+}
+
+/**/
+.key{
+    /* make each row grow equally to fill available space in flex row */
+    flex: 1;
+    height: 48px;
+    /* remove internal padding */
+    padding: 0;
+    border: none;
+    /* slightly rounds corners */
+    border-radius: 4px;
+    background-color: #d3d6da;
+    font-weight: bold;
+    /* shows hand cursor when hovering over key */
+    cursor: pointer;
+}
+
+.wide-key{
+    /* this means key recieves 1.6 shares of available space in flex compared to just 1 by regular key */
+    flex: 1.6;
+    font-size: 10px;
+}
