@@ -194,13 +194,15 @@ def Guess(guess, correct_answer):
             return_colors[index] = 2 # Color for the letter being in the final word
             correct_answer[correct_answer.index(guess[index])] = '_'
             guess[index] = '-'
-            CHARACTERS[guess[index]] = 2  # Updating the global dictionary
+	    if CHARACTERS[guess[index]] < 2
+		CHARACTERS[guess[index]] = 2  # Updating the global dictionary only if the global dictionary doesn't already have it marked as green
 
     # mark the rest as grey
     for index in range(len(guess)):
         if guess[index] != '-': # if the letter isn't in the correct answer
             return_colors[index] = 1 # Color for the letter not being in the final word
-            CHARACTERS[guess[index]] = 1 # Updating the global dictionary
+            if CHARACTERS[guess[index]] < 1:
+		CHARACTERS[guess[index]] = 1 # Updating the global dictionary only if the global dictionary doesn't already have it marked as green or yellow
 
 
     return return_colors
