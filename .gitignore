@@ -2,3 +2,4 @@
 ..gitignore.un~
 *~
 __pycache__/
+.vscode
