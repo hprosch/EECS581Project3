@@ -4,13 +4,39 @@ Creation Date: November 1st, 2026
 File Description: Tests python components
 """
 
+from typing import Any
+
+
 import random
 
-import game
-from game import ANSWER_LIST, VALIDATION_LIST, LoadLists, ValidateGuess, StartGame
+from game import ANSWER_LIST, VALIDATION_LIST, LoadLists, ValidateGuess, StartGame, Guess
 
 
-def answerlist_is_subset_test():
+def GuessTest() -> bool:
+	guesstest = True
+	testpairs: list[tuple[list[int], list[int]]] = [
+		(Guess("abcde", "abcde"), [3, 3, 3, 3, 3]),
+		(Guess("aaaaa", "abcde"), [3, 1, 1, 1, 1]),
+		(Guess("abaaa", "aabbb"), [3, 2, 2, 1, 1]),
+		(Guess("zzzzz", "aabbb"), [1, 1, 1, 1, 1]),
+	]
+	for i, j in testpairs:
+		if i != j:
+			guesstest = False
+	if not guesstest:
+		print("testing of guess function failed")
+	else:
+		print("testing of guess function passed")
+	return guesstest
+
+
+"""
+(Daniel Van Dalsem 11/4/2026)
+
+"""
+
+
+def answerlist_is_subset_test() -> bool:
 	answerlist_is_subset = True
 	for i in ANSWER_LIST:
 		if i not in VALIDATION_LIST:
@@ -25,7 +51,12 @@ def answerlist_is_subset_test():
 	return answerlist_is_subset
 
 
-def ValidateGuessTest():
+"""
+(Daniel Van Dalsem 11/4/2026)
+"""
+
+
+def ValidateGuessTest() -> bool:
 	validateguesspass = True
 	for i in range(0, 5):
 		past_guesses = [
@@ -51,8 +82,8 @@ def ValidateGuessTest():
 					+ " as inputs"
 				)
 				print("Expected " + str(valid))
-		if validateguesspass:
-			print("ValidateGuess testing passed")
+	if validateguesspass:
+		print("ValidateGuess testing passed")
 
 	return validateguesspass
 
@@ -72,7 +103,10 @@ def main() -> None:
 	answerlist_is_subset = answerlist_is_subset_test()
 	# next test validate guess
 	validateguesspass = ValidateGuessTest()
-	if validateguesspass and answerlist and answerlist_is_subset:
+
+	# test the guess function
+	guesstest = GuessTest()
+	if validateguesspass and answerlist and answerlist_is_subset and guesstest:
 		print("All tests passed!")
 
 
