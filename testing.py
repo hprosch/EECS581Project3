@@ -11,6 +11,11 @@ import random
 
 from game import ANSWER_LIST, VALIDATION_LIST, LoadLists, ValidateGuess, StartGame, Guess
 
+"""
+(Daniel Van Dalsem 11/4/2026)
+
+"""
+
 
 def GuessTest() -> bool:
 	guesstest = True
