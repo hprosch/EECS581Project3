@@ -6,6 +6,7 @@
     functions to give proper responses to actions taken in gameplay, providing the corresponding gamestates.
 '''
 
+# christopher brush update: safely selects a random answer for each new game
 import random
 
 ANSWER_LIST = []
@@ -81,7 +82,7 @@ def LoadLists():
     (Ian Ruebelmann, 10/30/26)
 '''
 def GetRandomAnswer():
-    return ANSWER_LIST[random.randint(0, len(ANSWER_LIST))]
+    return random.choice(ANSWER_LIST)
 
 
 '''
