@@ -10,19 +10,22 @@ import game
 from game import ANSWER_LIST, VALIDATION_LIST, LoadLists, ValidateGuess, StartGame
 
 
-def main() -> None:
-	StartGame()
-	# load in the lists
-	LoadLists()
-	answerlist = True
-	# quick check
-	try:
-		cool = ANSWER_LIST[len(ANSWER_LIST) - 1]
-	except IndexError:
-		print("Attempted to index into ANSWER_LIST at " + str(len(ANSWER_LIST) - 1) + " and failed")
-		answerlist = False
+def answerlist_is_subset_test():
+	answerlist_is_subset = True
+	for i in ANSWER_LIST:
+		if i not in VALIDATION_LIST:
+			answerlist_is_subset = False
+	if not answerlist_is_subset:
+		print(
+			"The answer list is not a subset of the Validation list! Some Possible Answers are not valid words!"
+		)
+	if answerlist_is_subset:
+		print("Answer list is subset of validation passed")
 
-	# next test validate guess
+	return answerlist_is_subset
+
+
+def ValidateGuessTest():
 	validateguesspass = True
 	for i in range(0, 5):
 		past_guesses = [
@@ -48,8 +51,28 @@ def main() -> None:
 					+ " as inputs"
 				)
 				print("Expected " + str(valid))
+		if validateguesspass:
+			print("ValidateGuess testing passed")
 
-	if validateguesspass and answerlist:
+	return validateguesspass
+
+
+def main() -> None:
+	# load in the lists
+	LoadLists()
+	answerlist = True
+	# quick check
+	try:
+		cool = ANSWER_LIST[len(ANSWER_LIST) - 1]
+	except IndexError:
+		print("Attempted to index into ANSWER_LIST at " + str(len(ANSWER_LIST) - 1) + " and failed")
+		answerlist = False
+
+	# awnser list should be a subset of validation lists
+	answerlist_is_subset = answerlist_is_subset_test()
+	# next test validate guess
+	validateguesspass = ValidateGuessTest()
+	if validateguesspass and answerlist and answerlist_is_subset:
 		print("All tests passed!")
 
 
