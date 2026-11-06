@@ -2,3 +2,5 @@
 ..gitignore.un~
 *~
 __pycache__/
+.vscode
+__pycache__
