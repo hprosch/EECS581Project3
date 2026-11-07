@@ -21,13 +21,16 @@ returns true if it passes false if it fails
 
 def GuessTest() -> bool:
 	guesstest = True
+	# make the test pairs
 	testpairs: list[tuple[list[int], list[int]]] = [
 		(Guess("abcde", "abcde"), [3, 3, 3, 3, 3]),
 		(Guess("aaaaa", "abcde"), [3, 1, 1, 1, 1]),
 		(Guess("abaaa", "aabbb"), [3, 2, 2, 1, 1]),
 		(Guess("zzzzz", "aabbb"), [1, 1, 1, 1, 1]),
 	]
+	# for each pair
 	for i, j in testpairs:
+		# if the result is not the same as the expected result the test fails
 		if i != j:
 			guesstest = False
 	if not guesstest:
@@ -46,7 +49,9 @@ True if passes, False if its fails
 
 def answerlist_is_subset_test() -> bool:
 	answerlist_is_subset = True
+	# for every anwser
 	for i in ANSWER_LIST:
+		# if its not the the validation list the test fails
 		if i not in VALIDATION_LIST:
 			answerlist_is_subset = False
 	if not answerlist_is_subset:
@@ -75,9 +80,13 @@ def ValidateGuessTest() -> bool:
 		validset = set(VALIDATION_LIST)
 		# add weird stuff to valid set to make sure that is handled right
 		validset = validset.union({"aaaa", "bbbb", "cccc", "dddd", "gggggg", ";;;g"})
+		# loop through the valid set
 		for guess in validset:
+			# if its not a pass guess and its in the valid set list its true
 			valid = guess not in past_guesses and guess in VALIDATION_LIST
+			# get the validate guess reponse
 			result = ValidateGuess(guess, past_guesses)
+			# if they do not make test fails
 			if valid != result:
 				validateguesspass = False
 				print("Test failed!")
