@@ -42,8 +42,8 @@ def GuessTest() -> bool:
 
 """
 (Daniel Van Dalsem 11/4/2026)
-Checks to make sure that everything in answer_list is also in validation list
-True if passes, False if its fails
+Checks to make sure that everything in answer list is also in validation list
+True if passes, False if it fails
 """
 
 
@@ -66,7 +66,7 @@ def answerlist_is_subset_test() -> bool:
 
 """
 (Daniel Van Dalsem 11/4/2026)
-Takes a bund of random words from the validation list as well as some extra invalid inputs, and checks to make suer the ValidateGuess validates correctly
+Takes a bund of random words from the validation list as well as some extra invalid inputs, and checks to make sure the ValidateGuess validates correctly
 """
 
 
