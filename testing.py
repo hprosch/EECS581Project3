@@ -1,7 +1,7 @@
 """
 Name(s): Daniel Van Dalsem
 Creation Date: November 1st, 2026
-File Description: Tests python components
+File Description: Tests python components from game.py
 """
 
 from typing import Any
@@ -13,6 +13,8 @@ from game import ANSWER_LIST, VALIDATION_LIST, LoadLists, ValidateGuess, StartGa
 
 """
 (Daniel Van Dalsem 11/4/2026)
+Run guess with some hand computed inputs and outputs and checks if they are correct.
+returns true if it passes false if it fails
 
 """
 
@@ -37,7 +39,8 @@ def GuessTest() -> bool:
 
 """
 (Daniel Van Dalsem 11/4/2026)
-
+Checks to make sure that everything in answer_list is also in validation list
+True if passes, False if its fails
 """
 
 
@@ -58,6 +61,7 @@ def answerlist_is_subset_test() -> bool:
 
 """
 (Daniel Van Dalsem 11/4/2026)
+Takes a bund of random words from the validation list as well as some extra invalid inputs, and checks to make suer the ValidateGuess validates correctly
 """
 
 
@@ -91,6 +95,12 @@ def ValidateGuessTest() -> bool:
 		print("ValidateGuess testing passed")
 
 	return validateguesspass
+
+
+"""
+(Daniel Van Dalsem 11/4/2026)
+Runs the tests and prints if they pass
+"""
 
 
 def main() -> None:
