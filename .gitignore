@@ -2,3 +2,8 @@
 ..gitignore.un~
 *~
 __pycache__/
+.vscode
+__pycache__
+uv.lock
+pyproject.toml
+.python-version
