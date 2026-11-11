@@ -27,32 +27,32 @@ WORD_DICTIONARY = {}
         (Ian Ruebelmann, 10/30/26)
 """
 CHARACTERS = {
-    "a": 0,
-    "b": 0,
-    "c": 0,
-    "d": 0,
-    "e": 0,
-    "f": 0,
-    "g": 0,
-    "h": 0,
-    "i": 0,
-    "j": 0,
-    "k": 0,
-    "l": 0,
-    "m": 0,
-    "n": 0,
-    "o": 0,
-    "p": 0,
-    "q": 0,
-    "r": 0,
-    "s": 0,
-    "t": 0,
-    "u": 0,
-    "v": 0,
-    "w": 0,
-    "x": 0,
-    "y": 0,
-    "z": 0,
+	"a": 0,
+	"b": 0,
+	"c": 0,
+	"d": 0,
+	"e": 0,
+	"f": 0,
+	"g": 0,
+	"h": 0,
+	"i": 0,
+	"j": 0,
+	"k": 0,
+	"l": 0,
+	"m": 0,
+	"n": 0,
+	"o": 0,
+	"p": 0,
+	"q": 0,
+	"r": 0,
+	"s": 0,
+	"t": 0,
+	"u": 0,
+	"v": 0,
+	"w": 0,
+	"x": 0,
+	"y": 0,
+	"z": 0,
 }
 
 """
@@ -60,17 +60,19 @@ CHARACTERS = {
 
     (Ian Ruebelmann, 10/30/26)
 """
+
+
 def LoadLists():
-    answer_template = open("templates/AnswerWordList.txt", "r")
-    validation_template = open("templates/EnglishWordList.txt", "r")
+	answer_template = open("templates/AnswerWordList.txt", "r")
+	validation_template = open("templates/EnglishWordList.txt", "r")
 
-    for line in answer_template:
-        ANSWER_LIST.append(line.lower().strip())
-    for line in validation_template:
-        VALIDATION_LIST.append(line.lower().strip())
+	for line in answer_template:
+		ANSWER_LIST.append(line.lower().strip())
+	for line in validation_template:
+		VALIDATION_LIST.append(line.lower().strip())
 
-    answer_template.close()
-    validation_template.close()
+	answer_template.close()
+	validation_template.close()
 
 
 """
@@ -81,14 +83,14 @@ def LoadLists():
 
 
 def GetRandomAnswer():
-    return random.choice(ANSWER_LIST)
+	return random.choice(ANSWER_LIST)
 
 
 def GetEasyModeLetter(correct_answer: str, known_letters: set[str]) -> str | None:
-    """Pick an answer letter the player has yet to learn."""
-    # eden's easy-mode helper, using this game's clues instead of global state
-    candidates = [letter for letter in correct_answer if letter not in known_letters]
-    return random.choice(candidates) if candidates else None
+	"""Pick an answer letter the player has yet to learn."""
+	# eden's easy-mode helper, using this game's clues instead of global state
+	candidates = [letter for letter in correct_answer if letter not in known_letters]
+	return random.choice(candidates) if candidates else None
 
 
 """
@@ -109,27 +111,27 @@ def GetEasyModeLetter(correct_answer: str, known_letters: set[str]) -> str | Non
 
 
 def ValidateGuess(guess, past_guesses, is_hardmode=False, correct_answer=""):
-    if guess in past_guesses:
-        return False
+	if guess in past_guesses:
+		return False
 
-    if is_hardmode and correct_answer == "":
-        raise ValueError("Hard Mode validation requires the correct answer")
+	if is_hardmode and correct_answer == "":
+		raise ValueError("Hard Mode validation requires the correct answer")
 
-    if is_hardmode and not ValidateHardmode(guess, past_guesses, correct_answer):
-        return False
+	if is_hardmode and not ValidateHardmode(guess, past_guesses, correct_answer):
+		return False
 
-    low = 0
-    high = len(VALIDATION_LIST) - 1
-    while low <= high:
-        mid = low + (high - low) // 2
-        if VALIDATION_LIST[mid] == guess:
-            return True
-        elif VALIDATION_LIST[mid] < guess:
-            low = mid + 1
-        else:
-            high = mid - 1
+	low = 0
+	high = len(VALIDATION_LIST) - 1
+	while low <= high:
+		mid = low + (high - low) // 2
+		if VALIDATION_LIST[mid] == guess:
+			return True
+		elif VALIDATION_LIST[mid] < guess:
+			low = mid + 1
+		else:
+			high = mid - 1
 
-    return False
+	return False
 
 
 """
@@ -145,29 +147,66 @@ def ValidateGuess(guess, past_guesses, is_hardmode=False, correct_answer=""):
 
     (Ian Ruebelmann, 11/3/26)
 """
+
+
 def ValidateHardmode(guess, past_guesses, correct_answer):
-    return HardModeError(guess, past_guesses, correct_answer) is None
+	return HardModeError(guess, past_guesses, correct_answer) is None
 
 
 def HardModeError(guess, past_guesses, correct_answer):
-    """Explain the first clue violation using feedback from accepted guesses."""
-    guess_counts = Counter(guess)
-    for previous in past_guesses:
-        clues = ScoreGuess(previous, correct_answer)
-        for index, (letter, color) in enumerate(zip(previous, clues)):
-            if color == 3 and guess[index] != letter:
-                return f"Hard Mode: keep {letter.upper()} in position {index + 1}."
+	"""Explain the first clue violation using feedback from accepted guesses."""
+	guess_counts = Counter(guess)
+	for previous in past_guesses:
+		clues = ScoreGuess(previous, correct_answer)
+		for index, (letter, color) in enumerate(zip(previous, clues)):
+			if color == 3 and guess[index] != letter:
+				return f"Hard Mode: keep {letter.upper()} in position {index + 1}."
 
-        # a green and a yellow for the same letter require two copies
-        known_counts = Counter(letter for letter, color in zip(previous, clues) if color >= 2)
-        for letter, count in known_counts.items():
-            if guess_counts[letter] < count:
-                label = letter.upper()
-                if count == 1:
-                    return f"Hard Mode: use {label} in your guess."
-                return f"Hard Mode: use at least {count} copies of {label}."
+		# a green and a yellow for the same letter require two copies
+		known_counts = Counter(letter for letter, color in zip(previous, clues) if color >= 2)
+		for letter, count in known_counts.items():
+			if guess_counts[letter] < count:
+				label = letter.upper()
+				if count == 1:
+					return f"Hard Mode: use {label} in your guess."
+				return f"Hard Mode: use at least {count} copies of {label}."
 
-    return None
+	return None
+
+
+"""
+    Provides a random letter the player has no information about
+
+    Inputs:
+        correct_answer: Final correct answer for the current game
+
+    Outputs:
+        False: the player has information on every letter
+        Random Letter: if the player dosen't have information on every letter it will return a random letter from the final word that the player does not have information on
+
+    note: This does not account for double letters when the user has guessed one but not the other, it will just see that as the user having info on both letters
+             I do not want to fix this, I vote we call it a feature.
+
+    (Ian Ruebelmann, 11/10/2026
+"""
+
+
+def GetEasyModeLetter(correct_answer):
+
+	answer = list(correct_answer)
+
+	# Remove every letter the player has info on
+	for letter in CHARACTERS:
+		if CHARACTERS[letter] > 1:
+			while letter in answer:
+				answer.remove(letter)
+
+	if len(answer) == 0:
+		return False
+
+	out = random.choice(answer)  # Get a random letter that the player has no info on
+	CHARACTERS[out] = 2  # We gave the letter so set the global dictionary to recognize it as yellow
+	return out
 
 
 """
@@ -184,28 +223,28 @@ Edited function to word with duplicate greens and yellows
 
 
 def Guess(guess, correct_answer):
-    colors = ScoreGuess(guess, correct_answer)
-    for letter, color in zip(guess, colors):
-        CHARACTERS[letter] = max(CHARACTERS[letter], color)
-    return colors
+	colors = ScoreGuess(guess, correct_answer)
+	for letter, color in zip(guess, colors):
+		CHARACTERS[letter] = max(CHARACTERS[letter], color)
+	return colors
 
 
 def ScoreGuess(guess, correct_answer):
-    """Compute the same feedback used by the board without changing letter state."""
-    colors = [1] * len(guess)
-    remaining = Counter(correct_answer)
+	"""Compute the same feedback used by the board without changing letter state."""
+	colors = [1] * len(guess)
+	remaining = Counter(correct_answer)
 
-    for index, letter in enumerate(guess):
-        if letter == correct_answer[index]:
-            colors[index] = 3
-            remaining[letter] -= 1
+	for index, letter in enumerate(guess):
+		if letter == correct_answer[index]:
+			colors[index] = 3
+			remaining[letter] -= 1
 
-    for index, letter in enumerate(guess):
-        if colors[index] == 1 and remaining[letter] > 0:
-            colors[index] = 2
-            remaining[letter] -= 1
+	for index, letter in enumerate(guess):
+		if colors[index] == 1 and remaining[letter] > 0:
+			colors[index] = 2
+			remaining[letter] -= 1
 
-    return colors
+	return colors
 
 
 """
@@ -215,19 +254,21 @@ The definition
 Hint() takes in the correct word and returns the definition of the word as a string 
 (Forest Denton, 11/16/26) 
 """
+
+
 def BuildDictionary():
-    "Called at the beginning of game, converts a JSON file to python Dictionary"
-    global WORD_DICTIONARY
-    with open('dictionary.json') as file:
-        WORD_DICTIONARY = json.load(file)
+	"Called at the beginning of game, converts a JSON file to python Dictionary"
+	global WORD_DICTIONARY
+	with open("dictionary.json") as file:
+		WORD_DICTIONARY = json.load(file)
 
 
 def Hint(correct_word):
-    if not bool(WORD_DICTIONARY): # if the dictionary hasn't been built yet
-        BuildDictionary()
-    definition = ""
-    try:
-        definition = WORD_DICTIONARY[correct_word]
-        return re.split(r'[\n"2"]',definition)[0]
-    except KeyError:
-        return "Sorry, no hint is available (No definition found)"
+	if not bool(WORD_DICTIONARY):  # if the dictionary hasn't been built yet
+		BuildDictionary()
+	definition = ""
+	try:
+		definition = WORD_DICTIONARY[correct_word]
+		return re.split(r'[\n"2"]', definition)[0]
+	except KeyError:
+		return "Sorry, no hint is available (No definition found)"
