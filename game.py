@@ -50,40 +50,6 @@ CHARACTERS = {
     "z": 0,
 }
 
-"""
-    More of a template function for now on how a game should look, should be broken atm
-
-    (Ian Ruebelmann, 10/30/26)
-"""
-
-
-def StartGame():
-    if ANSWER_LIST.isEmpty():
-        LoadLists()
-
-    final_word = GetRandomAnswer()
-    guess_count = 5
-    guesses = []
-
-    for i in range(guess_count):
-        valid_guess = false
-
-        while valid_guess == false:
-            # Guess needs to be accepted somehow
-            guess = ""
-            valid_guess = VALIDATE_GUESS(guess, guesses)
-
-        guesses.append(guess)
-
-        if guess == final_word:
-            # Win Condition
-            break
-        update_colors = Guess(
-            guess, final_word
-        )  # List of 1,2, or 3 position based colors.
-
-        # Update Character List
-
 
 """
     simple function to be called on startup, loads the word lists from file
@@ -198,6 +164,39 @@ def ValidateHardmode(guess, past_guesses, correct_answer):
 
     # If we get here we are good
     return True
+
+'''
+    Provides a random letter the player has no information about
+
+    Inputs:
+        correct_answer: Final correct answer for the current game
+
+    Outputs:
+        False: the player has information on every letter
+        Random Letter: if the player dosen't have information on every letter it will return a random letter from the final word that the player does not have information on
+
+    note: This does not account for double letters when the user has guessed one but not the other, it will just see that as the user having info on both letters
+             I do not want to fix this, I vote we call it a feature.
+
+    (Ian Ruebelmann, 11/10/2026
+'''
+
+def GetEasyModeLetter(correct_answer):
+    
+    answer = list(correct_answer)
+
+    # Remove every letter the player has info on
+    for letter in CHARACTERS:
+        if CHARACTERS[letter] > 1:
+            while letter in answer:
+                answer.remove(letter)
+
+    if len(answer) == 0:
+        return False
+
+    out = random.choice(answer) # Get a random letter that the player has no info on
+    CHARACTERS[out] = 2 # We gave the letter so set the global dictionary to recognize it as yellow
+    return out
 
 
 """
