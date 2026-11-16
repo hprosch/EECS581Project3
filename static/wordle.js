@@ -43,6 +43,7 @@ async function submit_guess() {
     }
 
     submitting = true;
+    const requestGameId = gameId; // remember which game this guess belongs to
     const guess = Array.from({ length: 5 }, (_, index) =>
         tiles[row * 5 + index].textContent.toLowerCase()).join("");
 
@@ -53,6 +54,10 @@ async function submit_guess() {
             body: JSON.stringify({ game_id: gameId, guess: guess })
         });
         const result = await response.json();
+
+        if (requestGameId !== gameId) { // ignore the response if the game was restarted meanwhile
+            return; // do not draw old results on the new board
+        } // end of stale response check
 
         if (!response.ok || !result.valid) {
             set_status(result.message || "That word is not valid.");
@@ -144,5 +149,44 @@ for (const button of buttons) {
         button.dataset.letter = label;
     }
 }
+
+function reset_board() { // clears the grid and keyboard back to their starting state
+    for (const tile of tiles) { // loop over every tile on the board
+        tile.textContent = ""; // remove the letter from the tile
+        tile.classList.remove("absent", "present", "correct"); // remove the color feedback from the tile
+    } // end of tile loop
+    for (const button of buttons) { // loop over every keyboard button
+        button.classList.remove("absent", "present", "correct"); // remove the color feedback from the key
+        delete button.dataset.state; // forget the stored key state so colors can be set again
+    } // end of keyboard loop
+    row = 0; // go back to the first row
+    column = 0; // go back to the first column
+    gameId = null; // drop the old game id until a new one is created
+    gameOver = false; // allow input again
+    submitting = false; // clear any in-flight guess flag
+} // end of reset_board
+
+async function restart_game() { // resets the grid and starts a brand new game
+    reset_board(); // clear the board and keyboard
+    set_status("Starting new game..."); // tell the player a new game is loading
+    await start_game(); // ask the server for a new game and answer
+} // end of restart_game
+
+function show_hint() { // placeholder for the hint feature
+    set_status("Hint coming soon!"); // tell the player the feature is not ready yet
+} // end of show_hint
+
+const restartButton = document.querySelector("#restart-button"); // find the restart button in the page
+const hintButton = document.querySelector("#hint-button"); // find the hint button in the page
+
+restartButton.addEventListener("click", function () { // run when the restart button is clicked
+    restart_game(); // reset everything and start a new game
+    restartButton.blur(); // remove focus so keyboard input goes to the game
+}); // end of restart click listener
+
+hintButton.addEventListener("click", function () { // run when the hint button is clicked
+    show_hint(); // show the placeholder message
+    hintButton.blur(); // remove focus so keyboard input goes to the game
+}); // end of hint click listener
 
 start_game();

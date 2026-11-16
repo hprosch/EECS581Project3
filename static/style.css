@@ -82,3 +82,23 @@ body {
 .tile.absent, .tile.present, .tile.correct{
     border-color: transparent;
 }
+
+.controls { /* row that holds the restart and hint buttons */
+    display: flex; /* lay the buttons out horizontally */
+    gap: 8px; /* space between the two buttons */
+    justify-content: center; /* center the buttons on the page */
+    margin-bottom: 12px; /* space between the buttons and the board */
+} /* end of .controls */
+
+.control-button { /* shared look for the restart and hint buttons */
+    padding: 8px 16px; /* inner spacing so the text is not cramped */
+    border: none; /* remove the default button border */
+    border-radius: 4px; /* slightly round the corners like the keys */
+    background-color: #d3d6da; /* same gray as the keyboard keys */
+    font-weight: bold; /* make the label bold */
+    cursor: pointer; /* show a hand cursor on hover */
+} /* end of .control-button */
+
+.control-button:hover { /* hover state for the control buttons */
+    background-color: #bfc2c6; /* slightly darker gray on hover */
+} /* end of .control-button:hover */

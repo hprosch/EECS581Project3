@@ -12,6 +12,10 @@
 <body>
 	<h1>Wordle</h1>
 	<p id="status" role="status" aria-live="polite"></p>
+	<div class="controls"> <!-- container for the restart and hint buttons -->
+		<button type="button" id="restart-button" class="control-button">New Game</button> <!-- button that resets the grid and starts a new game -->
+		<button type="button" id="hint-button" class="control-button">Hint</button> <!-- placeholder hint button until the backend is ready -->
+	</div> <!-- end of the controls container -->
 	<!--creates css class-->
 	<div class="board">
 		<!--essentially creates 30 different <div> eleemnts-->
