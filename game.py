@@ -8,6 +8,7 @@ functions to give proper responses to actions taken in gameplay, providing the c
 
 # christopher brush update: safely selects a random answer for each new game
 import random
+from collections import Counter
 
 ANSWER_LIST = []
 VALIDATION_LIST = []
@@ -116,6 +117,13 @@ def GetRandomAnswer():
     return random.choice(ANSWER_LIST)
 
 
+def GetEasyModeLetter(correct_answer: str, known_letters: set[str]) -> str | None:
+    """Pick an answer letter the player has yet to learn."""
+    # eden's easy-mode helper, using this game's clues instead of global state
+    candidates = [letter for letter in correct_answer if letter not in known_letters]
+    return random.choice(candidates) if candidates else None
+
+
 """
     Function to use binary search to check if a guess is valid
 
@@ -138,9 +146,9 @@ def ValidateGuess(guess, past_guesses, is_hardmode=False, correct_answer=""):
         return False
 
     if is_hardmode and correct_answer == "":
-        raise ("ensure correct_answer is set to a value if is_hardmode = True")
+        raise ValueError("Hard Mode validation requires the correct answer")
 
-    if is_hardmode and ValidateHardmode(guess, past_guesses, correct_answer) == False:
+    if is_hardmode and not ValidateHardmode(guess, past_guesses, correct_answer):
         return False
 
     low = 0
@@ -173,31 +181,28 @@ def ValidateGuess(guess, past_guesses, is_hardmode=False, correct_answer=""):
 
 
 def ValidateHardmode(guess, past_guesses, correct_answer):
-    if len(guesses) == 0:
-        return True
-    clues = Guess(guesses[-1], correct_answer)  # replace check with forest's function
+    return HardModeError(guess, past_guesses, correct_answer) is None
 
-    # Check if all the greens are in the same spot as the previous guess
-    for i in range(len(guess)):
-        if clues[i] == 3:
-            if guess[i] != guesses[-1][i]:
-                return False
-            guess[i] = (
-                "_"  # This assumes we have been given a copy of guess, we dont want to change the original
-            )
 
-    # Check if all the yellows from the previous guess are used
-    for i in range(len(guess)):
-        if clues[i] == 2:
-            for j in range(len(guess)):
-                if guess[j] == guesses[-1][i]:
-                    guess[j] = "_"
-                    break  # This break is ment to break out of the j loop, make sure it does
-                if j == 4:
-                    return False
+def HardModeError(guess, past_guesses, correct_answer):
+    """Explain the first clue violation using feedback from accepted guesses."""
+    guess_counts = Counter(guess)
+    for previous in past_guesses:
+        clues = ScoreGuess(previous, correct_answer)
+        for index, (letter, color) in enumerate(zip(previous, clues)):
+            if color == 3 and guess[index] != letter:
+                return f"Hard Mode: keep {letter.upper()} in position {index + 1}."
 
-    # If we get here we are good
-    return True
+        # a green and a yellow for the same letter require two copies
+        known_counts = Counter(letter for letter, color in zip(previous, clues) if color >= 2)
+        for letter, count in known_counts.items():
+            if guess_counts[letter] < count:
+                label = letter.upper()
+                if count == 1:
+                    return f"Hard Mode: use {label} in your guess."
+                return f"Hard Mode: use at least {count} copies of {label}."
+
+    return None
 
 
 """
@@ -214,41 +219,25 @@ Edited function to word with duplicate greens and yellows
 
 
 def Guess(guess, correct_answer):
+    colors = ScoreGuess(guess, correct_answer)
+    for letter, color in zip(guess, colors):
+        CHARACTERS[letter] = max(CHARACTERS[letter], color)
+    return colors
 
-    return_colors = ["_", "_", "_", "_", "_"]  # our output array
 
-    # Split out strings into lists to support item assignment
-    guess = list(guess)
-    correct_answer = list(correct_answer)
+def ScoreGuess(guess, correct_answer):
+    """Compute the same feedback used by the board without changing letter state."""
+    colors = [1] * len(guess)
+    remaining = Counter(correct_answer)
 
-    # check for greens
-    for index in range(len(guess)):
-        if guess[index] == correct_answer[index]:
-            return_colors[index] = 3  # Color for the letter being in the right position
-            correct_answer[index] = (
-                "_"  # Mark the letter off so that it can't be counted more than once
-            )
-            CHARACTERS[guess[index]] = 3  # Updating the global dictionary
-            guess[index] = "-"
+    for index, letter in enumerate(guess):
+        if letter == correct_answer[index]:
+            colors[index] = 3
+            remaining[letter] -= 1
 
-    # check for yellows
-    for index in range(len(guess)):
-        if guess[index] in correct_answer:
-            return_colors[index] = 2  # Color for the letter being in the final word
-            correct_answer[correct_answer.index(guess[index])] = "_"
-            if CHARACTERS[guess[index]] < 2:
-                CHARACTERS[guess[index]] = (
-                    2  # Updating the global dictionary only if the global dictionary doesn't already have it marked as green
-                )
-            guess[index] = "-"
+    for index, letter in enumerate(guess):
+        if colors[index] == 1 and remaining[letter] > 0:
+            colors[index] = 2
+            remaining[letter] -= 1
 
-    # mark the rest as grey
-    for index in range(len(guess)):
-        if guess[index] != "-":  # if the letter isn't in the correct answer
-            return_colors[index] = 1  # Color for the letter not being in the final word
-            if CHARACTERS[guess[index]] < 1:
-                CHARACTERS[guess[index]] = (
-                    1  # Updating the global dictionary only if the global dictionary doesn't already have it marked as green or yellow
-                )
-
-    return return_colors
+    return colors

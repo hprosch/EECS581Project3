@@ -1,14 +1,10 @@
 const startControls = document.querySelector(".start-controls");
 const startButton = document.querySelector("#start-button");
 const modeOptions = document.querySelector("#mode-options");
-const startStatus = document.querySelector("#start-status");
 
 function set_modes_open(open) {
     modeOptions.hidden = !open;
     startButton.setAttribute("aria-expanded", String(open));
-    if (open) {
-        startStatus.textContent = "";
-    }
 }
 
 function close_modes() {
@@ -34,13 +30,6 @@ startButton.addEventListener("click", (event) => {
     const toggle = event.detail !== 0 && event.pointerType !== "mouse";
     set_modes_open(!toggle || modeOptions.hidden);
 });
-
-for (const option of modeOptions.querySelectorAll("[data-mode]")) {
-    option.addEventListener("click", () => {
-        close_modes();
-        startStatus.textContent = `${option.dataset.mode} coming soon!`;
-    });
-}
 
 startControls.addEventListener("focusout", (event) => {
     if (!startControls.contains(event.relatedTarget)) {

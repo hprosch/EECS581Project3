@@ -9,14 +9,19 @@
 	<!--links external source, CSS Stylesheet, to HTML -->
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body data-mode="{{ mode }}">
 	<h1>Wordle</h1>
+	{% if mode != 'classic' %}<p>{{ mode_label }}</p>{% endif %}
 	<p id="status" role="status" aria-live="polite"></p>
 	<div class="controls">
 		<a class="control-button" href="{{ url_for('home') }}">Main Menu</a>
 		<button type="button" id="restart-button" class="control-button">New Game</button> <!-- button that resets the grid and starts a new game -->
 		<button type="button" id="hint-button" class="control-button">Hint</button> <!-- placeholder hint button until the backend is ready -->
+		{% if mode == 'easy' %}
+		<button type="button" id="free-letter-button" class="control-button" aria-disabled="true">Free Letter</button>
+		{% endif %}
 	</div> <!-- end of the controls container -->
+	{% if mode == 'easy' %}<p id="free-letter-status" role="status"></p>{% endif %}
 	<!--creates css class-->
 	<div class="board">
 		<!--essentially creates 30 different <div> eleemnts-->

@@ -16,8 +16,8 @@
                 <div class="mode-dropdown" id="mode-options" hidden>
                     <div class="mode-options">
                         <a class="start-option" href="{{ url_for('play') }}">Classic Mode</a>
-                        <button type="button" class="start-option" data-mode="Easy Mode">Easy Mode</button>
-                        <button type="button" class="start-option" data-mode="Hard Mode">Hard Mode</button>
+                        <a class="start-option" href="{{ url_for('play', mode='easy') }}">Easy Mode</a>
+                        <a class="start-option" href="{{ url_for('play', mode='hard') }}">Hard Mode</a>
                     </div>
                 </div>
             </div>

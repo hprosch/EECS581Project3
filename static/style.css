@@ -111,6 +111,12 @@ body {
     background-color: #bfc2c6;
 }
 
+.control-button[aria-disabled="true"] {
+    color: #52565a;
+    background-color: #e3e5e7;
+    cursor: default;
+}
+
 .start-page main {
     padding: clamp(2rem, 13vh, 8rem) 0.75rem 1rem;
 }
