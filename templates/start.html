@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='start.js') }}" defer></script>
+</head>
+<body class="start-page">
+    <main>
+        <h1>WORDLE</h1>
+        <div class="start-actions">
+            <div class="start-controls">
+                <button type="button" class="start-option" id="start-button" aria-expanded="false" aria-controls="mode-options">Start</button>
+                <div class="mode-dropdown" id="mode-options" hidden>
+                    <div class="mode-options">
+                        <a class="start-option" href="{{ url_for('play') }}">Classic Mode</a>
+                        <button type="button" class="start-option" data-mode="Easy Mode">Easy Mode</button>
+                        <button type="button" class="start-option" data-mode="Hard Mode">Hard Mode</button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="start-option">Multiplayer</button>
+            <button type="button" class="start-option">Adventure</button>
+        </div>
+        <p id="start-status" role="status"></p>
+    </main>
+</body>
+</html>

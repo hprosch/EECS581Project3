@@ -83,22 +83,139 @@ body {
     border-color: transparent;
 }
 
-.controls { /* row that holds the restart and hint buttons */
-    display: flex; /* lay the buttons out horizontally */
-    gap: 8px; /* space between the two buttons */
-    justify-content: center; /* center the buttons on the page */
-    margin-bottom: 12px; /* space between the buttons and the board */
-} /* end of .controls */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
 
-.control-button { /* shared look for the restart and hint buttons */
-    padding: 8px 16px; /* inner spacing so the text is not cramped */
-    border: none; /* remove the default button border */
-    border-radius: 4px; /* slightly round the corners like the keys */
-    background-color: #d3d6da; /* same gray as the keyboard keys */
-    font-weight: bold; /* make the label bold */
-    cursor: pointer; /* show a hand cursor on hover */
-} /* end of .control-button */
+.control-button {
+    display: inline-grid;
+    place-items: center;
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #d3d6da;
+    color: #1a1a1b;
+    font: 700 0.875rem Arial, sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-.control-button:hover { /* hover state for the control buttons */
-    background-color: #bfc2c6; /* slightly darker gray on hover */
-} /* end of .control-button:hover */
+.control-button:hover,
+.control-button:focus-visible {
+    background-color: #bfc2c6;
+}
+
+.start-page main {
+    padding: clamp(2rem, 13vh, 8rem) 0.75rem 1rem;
+}
+
+.start-page h1 {
+    margin: 0 0 2rem;
+    font-size: clamp(2.25rem, 8vw, 3.5rem);
+    letter-spacing: 0.08em;
+}
+
+.start-page .start-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.start-page .start-actions > * {
+    flex: 1 1 5.5rem;
+    min-width: min(5.5rem, 100%);
+    max-width: 9rem;
+}
+
+.start-page .start-actions > button,
+.start-page #start-button {
+    padding-inline: 0.5rem;
+    font-size: clamp(0.875rem, 3vw, 1rem);
+}
+
+.start-page .start-controls {
+    position: relative;
+}
+
+.start-page .mode-dropdown {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    min-width: min(8rem, calc(100vw - 2.5rem));
+    z-index: 1;
+    /* keep the gap in the same hover area as the button and the options */
+    padding-top: 0.5rem;
+}
+
+.start-page .mode-options {
+    display: grid;
+    gap: 0.375rem;
+    animation: reveal-wordle-modes 180ms ease-out;
+}
+
+.start-page .start-option {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-radius: 4px;
+    background-color: #d3d6da;
+    color: #1a1a1b;
+    font: 700 1rem Arial, sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.start-page .start-option:hover,
+.start-page .start-option:focus-visible,
+.control-button:focus-visible {
+    background-color: #bfc2c6;
+}
+
+.start-page .start-option:focus-visible {
+    outline: 2px solid #1a1a1b;
+    outline-offset: 2px;
+}
+
+@media (max-width: 319px) {
+    .start-page .start-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 9rem));
+    }
+
+    /* reserve the space below start for its dropdown */
+    .start-page .start-actions > button:last-child {
+        grid-column: 2;
+    }
+
+    .start-page .mode-dropdown {
+        min-width: 0;
+    }
+}
+
+@keyframes reveal-wordle-modes {
+    from {
+        opacity: 0;
+        transform: translateY(-0.25rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .start-page .mode-options {
+        animation: none;
+    }
+}

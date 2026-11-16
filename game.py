@@ -228,19 +228,19 @@ def Guess(guess, correct_answer):
             correct_answer[index] = (
                 "_"  # Mark the letter off so that it can't be counted more than once
             )
-            guess[index] = "-"
             CHARACTERS[guess[index]] = 3  # Updating the global dictionary
+            guess[index] = "-"
 
     # check for yellows
     for index in range(len(guess)):
         if guess[index] in correct_answer:
             return_colors[index] = 2  # Color for the letter being in the final word
             correct_answer[correct_answer.index(guess[index])] = "_"
-            guess[index] = "-"
             if CHARACTERS[guess[index]] < 2:
                 CHARACTERS[guess[index]] = (
                     2  # Updating the global dictionary only if the global dictionary doesn't already have it marked as green
                 )
+            guess[index] = "-"
 
     # mark the rest as grey
     for index in range(len(guess)):

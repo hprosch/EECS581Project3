@@ -123,6 +123,9 @@ for (const button of buttons){
 }
 
 document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && event.target.closest(".controls a")) {
+        return;
+    }
     if (["Enter", "Backspace", " "].includes(event.key)) {
         event.preventDefault();
     }

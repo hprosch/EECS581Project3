@@ -11,12 +11,13 @@ games = {}
 
 MAX_GUESSES = 6
 
-#defines what happens when someone visits home page
 @app.route("/")
-
-#function represents home page
 def home():
-    # loads HTML file from templates/
+    return render_template("start.html")
+
+
+@app.route("/play")
+def play():
     return render_template("index.html")
 
 #  create new game without changing existing front end
