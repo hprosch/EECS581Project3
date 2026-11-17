@@ -9,9 +9,13 @@ functions to give proper responses to actions taken in gameplay, providing the c
 # christopher brush update: safely selects a random answer for each new game
 import random
 from collections import Counter
+import json
+import re
+from filecmp import DEFAULT_IGNORES
 
 ANSWER_LIST = []
 VALIDATION_LIST = []
+WORD_DICTIONARY = {}
 
 """
     Dictionary to keep track of characters during a game
@@ -241,3 +245,28 @@ def ScoreGuess(guess, correct_answer):
             remaining[letter] -= 1
 
     return colors
+
+
+"""
+BuildDictionary() takes in no arguments, and initiates a global variable containing all valid words and their definitions
+
+The definition 
+Hint() takes in the correct word and returns the definition of the word as a string 
+(Forest Denton, 11/16/26) 
+"""
+def BuildDictionary():
+    "Called at the beginning of game, converts a JSON file to python Dictionary"
+    global WORD_DICTIONARY
+    with open('dictionary.json') as file:
+        WORD_DICTIONARY = json.load(file)
+
+
+def Hint(correct_word):
+    if not bool(WORD_DICTIONARY): # if the dictionary hasn't been built yet
+        BuildDictionary()
+    definition = ""
+    try:
+        definition = WORD_DICTIONARY[correct_word]
+        return re.split(r'[\n"2"]',definition)[0]
+    except KeyError:
+        return "Sorry, no hint is available (No definition found)"
