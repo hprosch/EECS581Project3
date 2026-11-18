@@ -7,3 +7,5 @@ __pycache__
 uv.lock
 pyproject.toml
 .python-version
+# config file for the ruff python formatter
+ruff.toml

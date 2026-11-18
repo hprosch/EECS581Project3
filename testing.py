@@ -9,7 +9,57 @@ from typing import Any
 
 import random
 
-from game import ANSWER_LIST, VALIDATION_LIST, LoadLists, ValidateGuess, StartGame, Guess
+from game import (
+	ANSWER_LIST,
+	VALIDATION_LIST,
+	CHARACTERS,
+	LoadLists,
+	ValidateGuess,
+	Guess,
+	GetEasyModeLetter,
+)
+
+
+def reset_characters() -> None:
+	for key in CHARACTERS.keys():
+		CHARACTERS[key] = 0
+
+
+"""
+(Daniel Van Dalsem 11/4/2026)
+"""
+
+
+def GetEasyModeLetterTest() -> bool:
+	test_passed = True
+	answer = "abcde"
+	for i in range(0, 20):
+		reset_characters()
+		letter1 = GetEasyModeLetter(answer)
+		if letter1 not in answer:  # pyright: ignore[reportOperatorIssue]
+			print("Test 1 of 3 for GetEasyModeLetter failed")
+			return False
+	for i in range(0, 20):
+		reset_characters()
+		CHARACTERS["a"] = 2
+		CHARACTERS["b"] = 2
+		letter2 = GetEasyModeLetter(answer)
+		if letter2 not in "cde":  # pyright: ignore[reportOperatorIssue]
+			print("Test 2 of 3 for GetEasyModeLetter failed")
+			return False
+	for i in range(0, 20):
+		reset_characters()
+		CHARACTERS["a"] = 3
+		CHARACTERS["c"] = 1
+		CHARACTERS["d"] = 2
+		letter3 = GetEasyModeLetter(answer)
+		if letter3 not in "bce":  # pyright: ignore[reportOperatorIssue]
+			print("Test 3 of 3 for GetEasyModeLetter failed")
+			return False
+	reset_characters()
+
+	return not GetEasyModeLetter("")
+
 
 """
 (Daniel Van Dalsem 11/4/2026)
@@ -132,7 +182,14 @@ def main() -> None:
 
 	# test the guess function
 	guesstest = GuessTest()
-	if validateguesspass and answerlist and answerlist_is_subset and guesstest:
+	easymodelettertest = GetEasyModeLetterTest()
+	if (
+		validateguesspass
+		and answerlist
+		and answerlist_is_subset
+		and guesstest
+		and easymodelettertest
+	):
 		print("All tests passed!")
 
 
