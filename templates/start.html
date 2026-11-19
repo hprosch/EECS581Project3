@@ -21,7 +21,12 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="start-option">Multiplayer</button>
+            <button type="button" onclick="multiplayer()">Multiplayer</button>
+	    <script>
+                 function multiplayer(){
+		      parent.window.location="{{ url_for('login') }}";
+		 }
+	    </script>
             <button type="button" class="start-option">Adventure</button>
         </div>
         <p id="start-status" role="status"></p>
