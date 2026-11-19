@@ -12,7 +12,7 @@ First, `git clone` this project’s repository onto your local machine.  Next, n
 Upon launching the game, select the mode of gameplay that you prefer:
 
 * `Start`
-    * Classic Mode: the World gameplay you know and love.
+    * Classic Mode: the Wordle gameplay you know and love.
     * Easy Mode: the `Free Letter` button allows you to request up to 5 free letters.
     * Hard Mode: when a yellow tile appears, each successive guess must contain that letter in any position.  When a green tile appears, each successive guess must use the green letter in the same index position.
 * `Multiplayer`: coming soon.
