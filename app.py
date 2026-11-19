@@ -1,10 +1,26 @@
-from flask import Flask, abort, render_template, jsonify, request
+from flask import Flask, abort, render_template, jsonify, request, session, url_for, redirect
+##
+from flask_socketio import SocketIO, send
+##
 from threading import Lock
 from uuid import uuid4
 import game
 
 # create flask application, and stores it to 'app' variable
 app = Flask(__name__)
+##
+app.secret_key = 'mysecret'
+app.config['SECRET'] = "secret!123"
+socketio = SocketIO(app, cors_allowed_origins="*")
+##
+
+##
+@socketio.on('message')
+def hand_message(message):
+     print("Recieved message: " + message)
+     if message != "User Connected!":
+          send(message, broadcast=True)
+##     
 
 # store each game's answer and previous guesses on server
 # browswer only recievs a game id, not the answer
@@ -18,6 +34,11 @@ GAME_MODES = {"classic": "Classic Mode", "easy": "Easy Mode", "hard": "Hard Mode
 def home():
     return render_template("start.html")
 
+##
+@app.route("/multi/<username>")
+def multi(username):
+    return render_template('multi.html', username=username);
+##
 
 @app.route("/play")
 def play():
@@ -25,6 +46,16 @@ def play():
     if mode not in GAME_MODES:
         abort(400, description="Unknown game mode")
     return render_template("index.html", mode=mode, mode_label=GAME_MODES[mode])
+
+@app.route("/login", methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        return redirect(url_for('lobby', username=request.form['username']))
+    return render_template('login.html')
+
+@app.route("/lobby/<username>", methods=['GET','POST'])
+def lobby(username):
+    return render_template('lobby.html', username=username)
 
 #  create new game without changing existing front end
 @app.route("/api/guess", methods=["POST"])
@@ -94,6 +125,8 @@ def check_guess(guess, current_game):
         )
         result["free_letters"] = free_letter_state(current_game)
 
+    socketio.emit('submit_guess', result, json=True, namespace='/multi', broadcast=True)
+
     return jsonify(result)
 
 
@@ -144,7 +177,6 @@ def free_letter_state(current_game):
         ),
     }
 
-
 @app.route("/api/free-letter", methods=["POST"])
 def reveal_letter():
     data = request.get_json(silent=True)
@@ -181,4 +213,5 @@ def reveal_letter():
 
 if __name__ == "__main__":
     # starts flask with development debugging enabled
-    app.run(debug=True)
+    #app.run(debug=True)
+    socketio.run(app, host="127.0.0.1")
