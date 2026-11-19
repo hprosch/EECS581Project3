@@ -23,6 +23,8 @@ def GuessTest() -> bool:
 	guesstest = True
 	# make the test pairs
 	testpairs: list[tuple[list[int], list[int]]] = [
+		(Guess("crate", "later"), [1, 2, 2, 2, 2]),
+		(Guess("crate", "trace"), [2, 3, 3, 2, 3]),
 		(Guess("abcde", "abcde"), [3, 3, 3, 3, 3]),
 		(Guess("aaaaa", "abcde"), [3, 1, 1, 1, 1]),
 		(Guess("abaaa", "aabbb"), [3, 2, 2, 1, 1]),
