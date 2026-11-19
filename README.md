@@ -11,12 +11,12 @@ First, `git clone` this project’s repository onto your local machine.  Next, n
 ### How to Play
 Upon launching the game, select the mode of gameplay that you prefer:
 
-*`Start`
-    *Classic Mode: the World gameplay you know and love.
-    *Easy Mode: the `Free Letter` button allows you to request up to 5 free letters.
-    *Hard Mode: when a yellow tile appears, each successive guess must contain that letter in any position.  When a green tile appears, each successive guess must use the green letter in the same index position.
-*`Multiplayer`: coming soon.
-*`Adventure`: coming soon.
+* `Start`
+    * Classic Mode: the World gameplay you know and love.
+    * Easy Mode: the `Free Letter` button allows you to request up to 5 free letters.
+    * Hard Mode: when a yellow tile appears, each successive guess must contain that letter in any position.  When a green tile appears, each successive guess must use the green letter in the same index position.
+* `Multiplayer`: coming soon.
+* `Adventure`: coming soon.
 
 For all modes, users have a series of 6 attempts to guess a 5-letter word correctly.  If a letter tile turns yellow, that means that letter is present in the target word, just not at that index position.  Similarly, if a letter tile turns green, that letter is present in that index position in the target word.  Any grey letter tiles on the game grid are not present in the target word.  
 
