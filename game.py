@@ -1,9 +1,9 @@
 """
 Name(s): Ian Ruebelmann
 Creation Date: October 30th, 2026
-Project: Project 1 - Minesweeping Game
-File Description: This is the backend/gameplay function section. It is responsible for building a grid and providing helper
-functions to give proper responses to actions taken in gameplay, providing the corresponding gamestates.
+Project: Project 2 - Wordle Game
+File Description: This is the backend/gameplay function section. It is responsible for keeping a dictionary of used and unused characters,
+                         aswell as validating and checking guesses to ensure they are valid guesses and sending them back the appropriate clues.
 """
 
 # christopher brush update: safely selects a random answer for each new game
@@ -56,47 +56,10 @@ CHARACTERS = {
 }
 
 """
-    More of a template function for now on how a game should look, should be broken atm
-
-    (Ian Ruebelmann, 10/30/26)
-"""
-
-
-def StartGame():
-    if ANSWER_LIST.isEmpty():
-        LoadLists()
-
-    final_word = GetRandomAnswer()
-    guess_count = 5
-    guesses = []
-
-    for i in range(guess_count):
-        valid_guess = false
-
-        while valid_guess == false:
-            # Guess needs to be accepted somehow
-            guess = ""
-            valid_guess = VALIDATE_GUESS(guess, guesses)
-
-        guesses.append(guess)
-
-        if guess == final_word:
-            # Win Condition
-            break
-        update_colors = Guess(
-            guess, final_word
-        )  # List of 1,2, or 3 position based colors.
-
-        # Update Character List
-
-
-"""
     simple function to be called on startup, loads the word lists from file
 
     (Ian Ruebelmann, 10/30/26)
 """
-
-
 def LoadLists():
     answer_template = open("templates/AnswerWordList.txt", "r")
     validation_template = open("templates/EnglishWordList.txt", "r")
@@ -182,8 +145,6 @@ def ValidateGuess(guess, past_guesses, is_hardmode=False, correct_answer=""):
 
     (Ian Ruebelmann, 11/3/26)
 """
-
-
 def ValidateHardmode(guess, past_guesses, correct_answer):
     return HardModeError(guess, past_guesses, correct_answer) is None
 
