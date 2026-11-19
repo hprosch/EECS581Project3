@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- author: Wyatt Richard Payne -->
+<!-- lobby for clients to wait for enough to connect to the server and play multiplayer mode -->
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Robby's Lobby</title>
+	<!--links external source, CSS Stylesheet, to HTML -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<!--CDN-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.4/socket.io.min.js"></script>
+</head>
+<body>
+	<h1>Lobby</h1>
+	<h2>Hello, {{ username }}!</h2>
+	<div id="players"></div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var socket = io.connect("http://127.0.0.1:5000")
+			socket.on('connect', function() {
+				socket.send("User Connected!");
+				socket.send({{ username | tojson }});
+			});
+
+			socket.on('message', function(data) {
+				$('#players').append($('<p>').text(data));
+				if (document.getElementById("players").querySelectorAll('p').length == 2){
+					socket.send({{ username | tojson }});
+					parent.window.location="{{ url_for('multi', username=username) }}";
+				}
+			});
+		})
+	</script>
+</body>
+</html>
