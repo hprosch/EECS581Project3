@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import Flask, abort, render_template, jsonify, request
 from threading import Lock
 from uuid import uuid4
@@ -14,6 +16,7 @@ MAX_GUESSES = 6
 MAX_FREE_LETTERS = 5
 GAME_MODES = {"classic": "Classic Mode", "easy": "Easy Mode", "hard": "Hard Mode"}
 
+
 @app.route("/")
 def home():
     return render_template("start.html")
@@ -26,6 +29,7 @@ def play():
         abort(400, description="Unknown game mode")
     return render_template("index.html", mode=mode, mode_label=GAME_MODES[mode])
 
+
 #  create new game without changing existing front end
 @app.route("/api/guess", methods=["POST"])
 def submit_guess():
@@ -34,14 +38,14 @@ def submit_guess():
 
     if not isinstance(data, dict):
         return jsonify({"valid": False, "message": "Invalid Request"}), 400
-    
-    game_id =  data.get("game_id")
+
+    game_id = data.get("game_id")
     guess = data.get("guess")
 
     # ensure game exists
     if not isinstance(game_id, str) or game_id not in games:
         return jsonify({"valid": False, "message": "Game not found"}), 400
-    
+
     # make sure the guess contains five letters
     if not isinstance(guess, str) or len(guess) != 5 or not guess.isalpha():
         return jsonify({"valid": False, "message": "Enter a five-letter word"}), 400
@@ -62,7 +66,9 @@ def check_guess(guess, current_game):
         return jsonify({"valid": False, "message": "Invalid or repeated word"}), 400
 
     if current_game.get("mode", "classic") == "hard":
-        message = game.HardModeError(guess, current_game["guesses"], current_game["answer"])
+        message = game.HardModeError(
+            guess, current_game["guesses"], current_game["answer"]
+        )
         if message:
             return jsonify({"valid": False, "message": message}), 400
 
@@ -77,12 +83,7 @@ def check_guess(guess, current_game):
         current_game["finished"] = True
 
     # return the results to the browser
-    result = {
-        "valid": True,
-        "colors": colors,
-        "won": won,
-        "game_over": game_over
-    }
+    result = {"valid": True, "colors": colors, "won": won, "game_over": game_over}
 
     # only reveal the answer when the game is finished
     if game_over:
@@ -99,7 +100,9 @@ def check_guess(guess, current_game):
 
 @app.route("/api/start", methods=["POST"])
 def start_game():
-    data = request.get_json(silent=True) if request.is_json and request.get_data() else {}
+    data = (
+        request.get_json(silent=True) if request.is_json and request.get_data() else {}
+    )
     if not isinstance(data, dict):
         return jsonify({"valid": False, "message": "Invalid Request"}), 400
 
@@ -157,7 +160,9 @@ def reveal_letter():
 
     current_game = games[game_id]
     if current_game["mode"] != "easy":
-        return jsonify({"valid": False, "message": "Free Letter is only available in Easy Mode"}), 400
+        return jsonify(
+            {"valid": False, "message": "Free Letter is only available in Easy Mode"}
+        ), 400
 
     with current_game["lock"]:
         state = free_letter_state(current_game)
@@ -168,16 +173,55 @@ def reveal_letter():
                 message = "Free Letter limit reached"
             else:
                 message = "No new letters left to reveal"
-            return jsonify({"valid": False, "message": message, "free_letters": state}), 400
+            return jsonify(
+                {"valid": False, "message": message, "free_letters": state}
+            ), 400
 
-        letter = game.GetEasyModeLetter(current_game["answer"], current_game["known_letters"])
+        letter = game.GetEasyModeLetter(
+            current_game["answer"], current_game["known_letters"]
+        )
         current_game["revealed_letters"].append(letter)
         current_game["known_letters"].add(letter)
-        return jsonify({
-            "valid": True,
-            "letter": letter,
-            "free_letters": free_letter_state(current_game),
-        })
+        return jsonify(
+            {
+                "valid": True,
+                "letter": letter,
+                "free_letters": free_letter_state(current_game),
+            }
+        )
+
+
+# Daniel Van Dalsem (11/20/2026)
+@app.route("/api/get-hint", methods=["POST"])
+def get_hint():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"valid": False, "message": "Invalid Request"}), 400
+
+    game_id = data.get("game_id")
+    if not isinstance(game_id, str) or game_id not in games:
+        return jsonify({"valid": False, "message": "Game not found"}), 400
+
+    current_game = games[game_id]
+
+    with current_game["lock"]:
+        state: bool = current_game.get("finished", False)
+        if state:
+            return jsonify(
+                {"valid": False, "message": "Game already finished", "hint": False}
+            ), 400
+
+        hint = game.Hint(
+            current_game["answer"]
+        )
+        
+        return jsonify(
+            {
+                "valid": True,
+                "hint": hint
+            }
+        )
+
 
 if __name__ == "__main__":
     # starts flask with development debugging enabled

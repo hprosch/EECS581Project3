@@ -106,7 +106,36 @@ function update_keyboard(guess, colors) {
         }
     }
 }
+// Daniel Van Dalsem (11/20/2026)
+async function get_hint(){
+        const requestGameId = gameId;
+    revealing = true;
 
+    try {
+        const response = await fetch("/api/get-hint", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ game_id: requestGameId })
+        });
+        const result = await response.json();
+        if (requestGameId !== gameId) {
+            return;
+        }
+        if (result.hint) {
+            set_status(result.hint || "Unable to show a hint. Please try again.")
+
+        } else {
+            set_status(result.message || "Unable to show a hint. Please try again.");
+        }
+    } catch (error) {
+        if (requestGameId === gameId) {
+            set_status("Unable to show a hint. Please try again.");
+        }
+    } finally {
+        if (requestGameId === gameId) {
+            revealing = false;
+        }
+    }}
 async function submit_guess() {
     if (column !== 5 || !gameId || gameOver || submitting || revealing) {
         return;
@@ -272,8 +301,8 @@ async function restart_game() { // resets the grid and starts a brand new game
     await start_game(); // ask the server for a new game and answer
 } // end of restart_game
 
-function show_hint() { // placeholder for the hint feature
-    set_status("Hint coming soon!"); // tell the player the feature is not ready yet
+async function show_hint() { // placeholder for the hint feature
+    await get_hint()
 } // end of show_hint
 
 restartButton.addEventListener("click", function () { // run when the restart button is clicked
