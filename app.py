@@ -1,5 +1,3 @@
-from typing import Any
-
 from flask import Flask, abort, render_template, jsonify, request
 from threading import Lock
 from uuid import uuid4
