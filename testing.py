@@ -8,6 +8,7 @@ import random
 import unittest
 from typing import Any
 from unittest.mock import patch
+import autoGuess
 
 from app import games
 from game import (
@@ -26,11 +27,12 @@ def reset_characters() -> None:
 		CHARACTERS[key] = 0
 
 
+BACKUP_ANSWER_LIST = ANSWER_LIST
+BACKUP_VALIDATION_LIST = VALIDATION_LIST
+
 """
 (Daniel Van Dalsem 11/4/2026)
 """
-BACKUP_ANSWER_LIST = ANSWER_LIST
-BACKUP_VALIDATION_LIST = VALIDATION_LIST
 
 
 class ModeTests(unittest.TestCase):
@@ -39,9 +41,11 @@ class ModeTests(unittest.TestCase):
 		ANSWER_LIST.clear()
 		VALIDATION_LIST.clear()
 		LoadLists()
-
 		self.addCleanup(games.clear)
 		self.addCleanup(reset_characters)
+		"""
+		(Daniel Van Dalsem)
+		"""
 
 	def test_GetEasyModeLetter(self) -> None:
 		answer = "abcde"
@@ -124,6 +128,41 @@ class ModeTests(unittest.TestCase):
 				result = ValidateGuess(guess, past_guesses)
 				# if they do not make test fails
 				self.assertEqual(valid, result)
+
+	"""	(Daniel Van Dalsem 11/19/2026)	"""
+
+	def test_validate_response(self):
+		self.assertTrue(expr=autoGuess.Validate("crane", "crane", [3, 3, 3, 3, 3]))
+		self.assertTrue(expr=autoGuess.Validate("brain", "crane", [1, 3, 3, 2, 1]))
+		self.assertTrue(expr=autoGuess.Validate("apple", "crane", [1, 1, 2, 1, 3]))
+		self.assertTrue(expr=autoGuess.Validate("zooms", "crane", [1, 1, 1, 1, 1]))
+
+	"""	(Daniel Van Dalsem 11/19/2026)	"""
+
+	def test_prune(self):
+		previus = ["crane", "brain", "apple", "zooms"]
+		self.assertEqual(
+			autoGuess.Prune(previus, ANSWER_LIST, "drain"),
+			["drain", "grain", "train"],
+		)
+
+	"""	(Daniel Van Dalsem 11/19/2026)	"""
+
+	def test_information(self):
+		self.assertEqual(autoGuess.Information("crane", ["crane", "crane"]), 0)
+		self.assertEqual(autoGuess.Information("crane", ["crane", "drain"]), 1)
+
+	"""	(Daniel Van Dalsem 11/19/2026)	"""
+
+	def test_next_best(self):
+		# path otherwise we can get "raise"
+		with patch("autoGuess.random.choice", return_value="arise"):
+			self.assertEqual(autoGuess.NextBest([], "drain"), "arise")
+
+		self.assertEqual(
+			autoGuess.NextBest(["crane"], "drain", ["drain"], ["crane"]),
+			"drain",
+		)
 
 
 """
