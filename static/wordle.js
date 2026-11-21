@@ -12,7 +12,7 @@ const restartButton = document.querySelector("#restart-button"); // find the res
 const hintButton = document.querySelector("#hint-button"); // find the hint button in the page
 const freeLetterButton = document.querySelector("#free-letter-button");
 const freeLetterStatus = document.querySelector("#free-letter-status");
-
+const hintStatus = document.querySelector("#hint-notification")
 let row = 0;
 let column = 0;
 let gameId = null;
@@ -24,7 +24,9 @@ let revealing = false;
 function set_status(message) {
     status.textContent = message;
 }
-
+function set_hint(message){
+    hintStatus.textContent = message;
+}
 function update_free_letter_button() {
     if (freeLetterButton) {
         const available = freeLetters?.available && !submitting && !revealing;
@@ -107,6 +109,8 @@ function update_keyboard(guess, colors) {
     }
 }
 // Daniel Van Dalsem (11/20/2026)
+// This is mostly just taken from request_free_letter with modifications
+// shows the hint
 async function get_hint(){
         const requestGameId = gameId;
     revealing = true;
@@ -122,7 +126,7 @@ async function get_hint(){
             return;
         }
         if (result.hint) {
-            set_status(result.hint || "Unable to show a hint. Please try again.")
+            set_hint(result.hint || "Unable to show a hint. Please try again.")
 
         } else {
             set_status(result.message || "Unable to show a hint. Please try again.");
@@ -174,13 +178,16 @@ async function submit_guess() {
         if (result.won) {
             gameOver = true;
             set_status("You win!");
+            set_hint("");
         } else if (result.game_over) {
             gameOver = true;
             set_status(`Game over. The answer was ${result.answer.toUpperCase()}.`);
+            set_hint("");
         } else {
             row++;
             column = 0;
             set_status("");
+            set_hint("");
         }
         if (result.free_letters) {
             show_free_letters(result.free_letters);

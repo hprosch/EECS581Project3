@@ -190,6 +190,7 @@ def reveal_letter():
 
 
 # Daniel Van Dalsem (11/20/2026)
+# route for the hints, gets the hint and returns it
 @app.route("/api/get-hint", methods=["POST"])
 def get_hint():
     data = request.get_json(silent=True)
