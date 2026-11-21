@@ -30,51 +30,57 @@ def reset_characters() -> None:
 BACKUP_ANSWER_LIST = ANSWER_LIST
 BACKUP_VALIDATION_LIST = VALIDATION_LIST
 
-"""
-(Daniel Van Dalsem 11/4/2026)
-"""
-
 
 class ModeTests(unittest.TestCase):
-	# function taken from test_modes.py
+	# 11/19/2026 Daniel Van Dalsem
+	# This is run implicitly at the start of every test and just cleans up the global state
 	def setUp(self):
 		ANSWER_LIST.clear()
 		VALIDATION_LIST.clear()
 		LoadLists()
 		self.addCleanup(games.clear)
 		self.addCleanup(reset_characters)
-		"""
-		(Daniel Van Dalsem)
-		"""
+
+	"""
+	(Daniel Van Dalsem) 11/15/2026
+	just tests a bunch of cases for easy mode
+	"""
 
 	def test_GetEasyModeLetter(self) -> None:
 		answer = "abcde"
+		letters = set()
 		for i in range(0, 20):
 			reset_characters()
-			letter1 = GetEasyModeLetter(answer)
+			letter1 = GetEasyModeLetter(answer, letters)
 			self.assertIn(letter1, answer)
+		letters = set()
 		for i in range(0, 20):
 			reset_characters()
 			CHARACTERS["a"] = 2
 			CHARACTERS["b"] = 2
-			letter2 = GetEasyModeLetter(answer)
+			letters.add("a")
+			letters.add("b")
+			letter2 = GetEasyModeLetter(answer, letters)
 			self.assertIn(letter2, "cde")
+		letters = set()
+
 		for i in range(0, 20):
 			reset_characters()
 			CHARACTERS["a"] = 3
 			CHARACTERS["c"] = 1
 			CHARACTERS["d"] = 2
-			letter3 = GetEasyModeLetter(answer)
+			letters.add("a")
+			letters.add("d")
+			letter3 = GetEasyModeLetter(answer, letters)
 			self.assertIn(letter3, "bce")
 
 		reset_characters()
-		self.assertEqual(GetEasyModeLetter(""), False)
+		self.assertEqual(GetEasyModeLetter("", set()), None)
 
 	"""
 	(Daniel Van Dalsem 11/4/2026)
 	Run guess with some hand computed inputs and outputs and checks if they are correct.
-	returns true if it passes false if it fails
-
+	asserts equal for each
 	"""
 
 	def test_Guess(self) -> None:
@@ -130,6 +136,7 @@ class ModeTests(unittest.TestCase):
 				self.assertEqual(valid, result)
 
 	"""	(Daniel Van Dalsem 11/19/2026)	"""
+	""" just tests a bunch of cases for the validate function """
 
 	def test_validate_response(self):
 		self.assertTrue(expr=autoGuess.Validate("crane", "crane", [3, 3, 3, 3, 3]))
@@ -138,6 +145,7 @@ class ModeTests(unittest.TestCase):
 		self.assertTrue(expr=autoGuess.Validate("zooms", "crane", [1, 1, 1, 1, 1]))
 
 	"""	(Daniel Van Dalsem 11/19/2026)	"""
+	""" Tests the prune function  """
 
 	def test_prune(self):
 		previus = ["crane", "brain", "apple", "zooms"]
@@ -147,12 +155,17 @@ class ModeTests(unittest.TestCase):
 		)
 
 	"""	(Daniel Van Dalsem 11/19/2026)	"""
+	""" tests that information returned is correct. 
+	I Don't want to manual calculate too much so we are only testing the min and max information cases.  
+	"""
 
 	def test_information(self):
 		self.assertEqual(autoGuess.Information("crane", ["crane", "crane"]), 0)
 		self.assertEqual(autoGuess.Information("crane", ["crane", "drain"]), 1)
 
-	"""	(Daniel Van Dalsem 11/19/2026)	"""
+	"""	(Daniel Van Dalsem 11/19/2026)	
+	Test the next best function
+	"""
 
 	def test_next_best(self):
 		# path otherwise we can get "raise"
@@ -163,12 +176,6 @@ class ModeTests(unittest.TestCase):
 			autoGuess.NextBest(["crane"], "drain", ["drain"], ["crane"]),
 			"drain",
 		)
-
-
-"""
-(Daniel Van Dalsem 11/4/2026)
-Runs the tests and prints if they pass
-"""
 
 
 if __name__ == "__main__":
