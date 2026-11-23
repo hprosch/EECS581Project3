@@ -1,25 +1,35 @@
 /*
-    author: christopher brush
-    file description: connects the wordle board and keyboard to the flask game api
-    added: starts games, submits guesses, displays feedback, and handles game over
+authors: christopher brush, ruben pino-martinez
+file description: connects the wordle board and keyboard to the flask game api
+added: starts games, submits guesses, displays feedback, and handles game over
+Inputs: keyboard events, game button clicks, the selected mode, and JSON responses from Flask.
+Outputs: updated tiles, guess feedback, messages, and Easy Mode letter status.
+
+Generative Artificial Intelligence Usage Documentation and Listing:
+1. How/Why AI: RPM used ChatGPT to connect the mode selection and Free Letter button to the existing game,
+               without replacing Chris's New Game controls or the team's guess logic. - RPM 11.16
+2. Prompts: "Preserve the grid, keyboard, guess submission, colored feedback, and win/loss messages." - RPM 11.16
+3. Validation/Revision: Tested Main Menu after guesses and completed games.
+4. Challenges/Limitations: Easy Mode can run out of distinct unknown letters before 5/5. I followed up on the
+                           3/5 and 4/5 cases to understand why a reveal was no longer available. - RPM 11.16
 */
 
 const tiles = document.querySelectorAll(".tile");
 const buttons = document.querySelectorAll(".key");
 const status = document.querySelector("#status");
-const mode = document.body.dataset.mode;
+const mode = document.body.dataset.mode; // reads Classic, Easy, or Hard from the page - RPM 11.16
 const restartButton = document.querySelector("#restart-button"); // find the restart button in the page
 const hintButton = document.querySelector("#hint-button"); // find the hint button in the page
-const freeLetterButton = document.querySelector("#free-letter-button");
-const freeLetterStatus = document.querySelector("#free-letter-status");
+const freeLetterButton = document.querySelector("#free-letter-button"); // finds the button only shown in Easy Mode - RPM 11.16
+const freeLetterStatus = document.querySelector("#free-letter-status"); // where the revealed letters and count appear - RPM 11.16
 const hintStatus = document.querySelector("#hint-notification")
 let row = 0;
 let column = 0;
 let gameId = null;
 let gameOver = false;
 let submitting = false;
-let freeLetters = null;
-let revealing = false;
+let freeLetters = null; // keeps the Free Letter state returned by Flask - RPM 11.16
+let revealing = false; // blocks overlapping Free Letter requests - RPM 11.16
 
 function set_status(message) {
     status.textContent = message;
@@ -27,13 +37,15 @@ function set_status(message) {
 function set_hint(message){
     hintStatus.textContent = message;
 }
+// update whether Free Letter can be used right now - RPM 11.16
 function update_free_letter_button() {
     if (freeLetterButton) {
-        const available = freeLetters?.available && !submitting && !revealing;
+        const available = freeLetters?.available && !submitting && !revealing; // checks the server limit and current requests - RPM 11.16
         freeLetterButton.setAttribute("aria-disabled", String(!available));
     }
 }
 
+// show how many free letters were used and which letters were learned - RPM 11.16
 function show_free_letters(state) {
     freeLetters = state;
     if (!freeLetterStatus) {
@@ -45,7 +57,7 @@ function show_free_letters(state) {
         return;
     }
 
-    const letters = state.letters.map(letter => letter.toUpperCase()).join(", ");
+    const letters = state.letters.map(letter => letter.toUpperCase()).join(", "); // shows letters without their positions - RPM 11.16
     const revealed = letters ? `Revealed letters: ${letters}. ` : "";
     const exhausted = !state.available && !gameOver && state.used < state.limit
         ? " No new letters left to reveal." : "";
@@ -56,6 +68,7 @@ function show_free_letters(state) {
     update_free_letter_button();
 }
 
+// ask Flask for one new answer letter, without using a guess - RPM 11.16
 async function request_free_letter() {
     if (freeLetterButton.getAttribute("aria-disabled") === "true") {
         return;
@@ -64,13 +77,13 @@ async function request_free_letter() {
     revealing = true;
     update_free_letter_button();
     try {
-        const response = await fetch("/api/free-letter", {
+        const response = await fetch("/api/free-letter", { // sends the current game ID to the Free Letter route - RPM 11.16
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ game_id: requestGameId })
         });
         const result = await response.json();
-        if (requestGameId !== gameId) {
+        if (requestGameId !== gameId) { // ignores a reveal from a game that was restarted - RPM 11.16
             return;
         }
         if (result.free_letters) {
@@ -141,12 +154,12 @@ async function get_hint(){
         }
     }}
 async function submit_guess() {
-    if (column !== 5 || !gameId || gameOver || submitting || revealing) {
+    if (column !== 5 || !gameId || gameOver || submitting || revealing) { // also waits while a letter reveal is running - RPM 11.16
         return;
     }
 
     submitting = true;
-    update_free_letter_button();
+    update_free_letter_button(); // disables Free Letter while submitting a guess - RPM 11.16
     const requestGameId = gameId; // remember which game this guess belongs to
     const guess = Array.from({ length: 5 }, (_, index) =>
         tiles[row * 5 + index].textContent.toLowerCase()).join("");
@@ -189,7 +202,7 @@ async function submit_guess() {
             set_status("");
             set_hint("");
         }
-        if (result.free_letters) {
+        if (result.free_letters) { // reads updated Free Letter state after a valid guess - RPM 11.16
             show_free_letters(result.free_letters);
         }
     } catch (error) {
@@ -225,7 +238,7 @@ function handle_key(key) {
 
     const letter = key.toUpperCase();
     if ((letter.length === 1) && (letter >= "A") && (letter <= "Z") && (column < 5)) {
-        if (document.activeElement === freeLetterButton) {
+        if (document.activeElement === freeLetterButton) { // moves focus off Free Letter when typing a guess - RPM 11.16
             freeLetterButton.blur();
         }
         const index = row * 5 + column;
@@ -241,10 +254,10 @@ for (const button of buttons){
 }
 
 document.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" && event.target.closest(".controls a")) {
+    if (event.key === "Enter" && event.target.closest(".controls a")) { // lets Enter follow the Main Menu link - RPM 11.15
         return;
     }
-    if (event.target === freeLetterButton && ["Enter", " "].includes(event.key)) {
+    if (event.target === freeLetterButton && ["Enter", " "].includes(event.key)) { // lets the button handle its own keyboard click - RPM 11.16
         return;
     }
     if (["Enter", "Backspace", " "].includes(event.key)) {
@@ -259,14 +272,14 @@ async function start_game() {
         const response = await fetch("/api/start", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mode })
+            body: JSON.stringify({ mode }) // sends the selected mode when starting a session - RPM 11.16
         });
         const result = await response.json();
         if (!response.ok || !result.game_id) {
             throw new Error("game start failed");
         }
         gameId = result.game_id;
-        if (result.free_letters) {
+        if (result.free_letters) { // starts Easy Mode with the server-provided reveal count - RPM 11.16
             show_free_letters(result.free_letters);
         }
         set_status("Enter a five-letter word.");
@@ -298,8 +311,8 @@ function reset_board() { // clears the grid and keyboard back to their starting 
     gameId = null; // drop the old game id until a new one is created
     gameOver = false; // allow input again
     submitting = false; // clear any in-flight guess flag
-    revealing = false;
-    show_free_letters(null);
+    revealing = false; // clears any ongoing Free Letter request - RPM 11.16
+    show_free_letters(null); // resets the reveal display for a new game - RPM 11.16
 } // end of reset_board
 
 async function restart_game() { // resets the grid and starts a brand new game
@@ -322,6 +335,7 @@ hintButton.addEventListener("click", function () { // run when the hint button i
     hintButton.blur(); // remove focus so keyboard input goes to the game
 }); // end of hint click listener
 
+// connect the Easy Mode button to its Flask request - RPM 11.16
 freeLetterButton?.addEventListener("click", event => {
     if (event.detail > 0) {
         freeLetterButton.blur();

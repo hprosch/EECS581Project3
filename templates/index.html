@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+Main Menu link and the Easy/Hard Mode display changes - RPM 11.16
+File Description: index.html shows the Wordle board, keyboard, and game controls. - RPM 11.15
+Inputs: mode and mode_label from the Flask play route, plus Flask url_for links. Output: the gameplay page rendered by Jinja. - RPM 11.16
+
+Generative Artificial Intelligence Usage Documentation and Listing:
+1. How/Why AI: I used ChatGPT to add a Main Menu link and show the right controls for each mode - RPM 11.16
+2. Prompts: "Add a Main Menu control immediately to the left of New Game in the existing row above the grid." - RPM 11.15
+           "Show a Free Letter button only in Easy Mode, alongside the existing Hint button." - RPM 11.16
+3. Validation/Revision: I asked ChatGPT to check Main Menu after a guess, win, and loss and keep New Game and Hint working. The browser checks caught a problem with Enter on the Main Menu link, so the gameplay key handler was adjusted. - RPM 11.15
+4. Challenges/Limitations: The existing gameplay script could intercept Enter instead of following Main Menu. Easy Mode also needed its own button and status without changing the Classic or Hard Mode controls. - RPM 11.16
+-->
 <html lang="en">
 <!-- author: christopher brush -->
 <!-- file description: displays the wordle board, keyboard, and game status -->
@@ -9,19 +21,23 @@
 	<!--links external source, CSS Stylesheet, to HTML -->
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body data-mode="{{ mode }}">
+<body data-mode="{{ mode }}"> <!-- passes the selected mode from Flask to the gameplay page - RPM 11.16 -->
 	<h1>Wordle</h1>
-	{% if mode != 'classic' %}<p>{{ mode_label }}</p>{% endif %}
+	<!-- show which mode is being played when it is not Classic - RPM 11.16 -->
+	{% if mode != 'classic' %}<p>{{ mode_label }}</p>{% endif %} <!-- uses mode_label when mode is not classic - RPM 11.16 -->
 	<p id="status" role="status" aria-live="polite"></p>
 	<div class="controls">
-		<a class="control-button" href="{{ url_for('home') }}">Main Menu</a>
+		<!-- return to the start menu instead of starting another game here - RPM 11.15 -->
+		<a class="control-button" href="{{ url_for('home') }}">Main Menu</a> <!-- url_for generates the link back to home() - RPM 11.15 -->
 		<button type="button" id="restart-button" class="control-button">New Game</button> <!-- button that resets the grid and starts a new game -->
 		<button type="button" id="hint-button" class="control-button">Hint</button> <!-- placeholder hint button until the backend is ready -->
+		<!-- only show the Free Letter control in Easy Mode - RPM 11.16 -->
 		{% if mode == 'easy' %}
-		<button type="button" id="free-letter-button" class="control-button" aria-disabled="true">Free Letter</button>
+		<button type="button" id="free-letter-button" class="control-button" aria-disabled="true">Free Letter</button> <!-- starts with aria-disabled until the game script updates it - RPM 11.16 -->
 		{% endif %}
 	</div> <!-- end of the controls container -->
-	{% if mode == 'easy' %}<p id="free-letter-status" role="status"></p>{% endif %}
+	<!-- give Easy Mode a place to show its free-letter results - RPM 11.16 -->
+	{% if mode == 'easy' %}<p id="free-letter-status" role="status"></p>{% endif %} <!-- adds the status element only for Easy Mode - RPM 11.16 -->
 	<p id="hint-notification" role="hint"></p>
 	<!--creates css class-->
 	<div class="board">

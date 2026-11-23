@@ -4,6 +4,18 @@ Creation Date: October 30th, 2026
 Project: Project 2 - Wordle Game
 File Description: This is the backend/gameplay function section. It is responsible for keeping a dictionary of used and unused characters,
                          aswell as validating and checking guesses to ensure they are valid guesses and sending them back the appropriate clues.
+
+Guess() takes a guess and answer, updates letter colors, and returns the score for the board. - RPM 11.15
+ScoreGuess() takes a guess and answer and returns gray, yellow, or green feedback without changing saved letter state. - RPM 11.16
+HardModeError() takes the current guess, past guesses, and answer, then returns a clue violation message or None. - RPM 11.16
+GetEasyModeLetter() takes the answer and known letters and returns an unknown letter or None; it adapts Eden's easy-mode helper from commit 6ff86f3. - RPM 11.16
+
+Generative Artificial Intelligence Usage Documentation and Listing:
+1. How/Why AI: I used ChatGPT to help fix the scoring crash found during start-page testing and work out how to connect Hard Mode and Eden's Easy Mode logic to the user interface - RPM 11.16
+2. Prompts: "Indicate how to begin an implementation of a minimal start page for a user to see when the see the web page" - RPM 11.15
+3. Validation/Revision: It went for a more dense start page, in which I corrected for a more basic and barebones front.
+4. Challenges/Limitations: Hard Mode's validator wasn't connected to Flask, so it needed a connection before it could reject invalid clues. - RPM 11.16
+                           Easy Mode can stop before 5/5 reveals if a word repeats letters or the player already learned some through guesses, which I followed up on. - RPM 11.16
 """
 
 # christopher brush update: safely selects a random answer for each new game
@@ -84,6 +96,7 @@ def GetRandomAnswer():
     return random.choice(ANSWER_LIST)
 
 
+# adapted Eden's Easy Mode helper to use the known letters for this game - RPM 11.16
 def GetEasyModeLetter(correct_answer: str, known_letters: set[str]) -> str | None:
     """Pick an answer letter the player has yet to learn."""
     # eden's easy-mode helper, using this game's clues instead of global state
@@ -146,12 +159,14 @@ def ValidateGuess(guess, past_guesses, is_hardmode=False, correct_answer=""):
     (Ian Ruebelmann, 11/3/26)
 """
 def ValidateHardmode(guess, past_guesses, correct_answer):
-    return HardModeError(guess, past_guesses, correct_answer) is None
+    return HardModeError(guess, past_guesses, correct_answer) is None  # Changed this call to use its new error helper - RPM 11.16
 
 
+# Added error messages around Ian's Hard Mode clue rules - RPM 11.16
 def HardModeError(guess, past_guesses, correct_answer):
     """Explain the first clue violation using feedback from accepted guesses."""
     guess_counts = Counter(guess)
+    # check the green positions from earlier guesses first
     for previous in past_guesses:
         clues = ScoreGuess(previous, correct_answer)
         for index, (letter, color) in enumerate(zip(previous, clues)):
@@ -160,6 +175,7 @@ def HardModeError(guess, past_guesses, correct_answer):
 
         # a green and a yellow for the same letter require two copies
         known_counts = Counter(letter for letter, color in zip(previous, clues) if color >= 2)
+        # make sure the new guess keeps all those known letters
         for letter, count in known_counts.items():
             if guess_counts[letter] < count:
                 label = letter.upper()
@@ -184,22 +200,25 @@ Edited function to word with duplicate greens and yellows
 
 
 def Guess(guess, correct_answer):
-    colors = ScoreGuess(guess, correct_answer)
+    colors = ScoreGuess(guess, correct_answer)  # Changed this call to use the revised scorer - RPM 11.15
     for letter, color in zip(guess, colors):
         CHARACTERS[letter] = max(CHARACTERS[letter], color)
     return colors
 
 
+# ChatGPT separated Forest and Ian's scoring logic to fix a crash without changing saved keyboard colors - RPM 11.15
 def ScoreGuess(guess, correct_answer):
     """Compute the same feedback used by the board without changing letter state."""
     colors = [1] * len(guess)
     remaining = Counter(correct_answer)
 
+    # do the greens first so we don't use those letters for yellows
     for index, letter in enumerate(guess):
         if letter == correct_answer[index]:
             colors[index] = 3
             remaining[letter] -= 1
 
+    # check if the other letters belong anywhere else in the answer
     for index, letter in enumerate(guess):
         if colors[index] == 1 and remaining[letter] > 0:
             colors[index] = 2

@@ -1,3 +1,20 @@
+/*
+File Description: style.css styles the Wordle board and keyboard, plus the added start menu and mode dropdown. - RPM 11.15
+Inputs: HTML classes, selected/disabled states, screen width, and reduced-motion preferences.
+Outputs: the board, keyboard, controls, menu layout, and feedback colors. - RPM 11.15
+
+Generative Artificial Intelligence Usage Documentation and Listing:
+1. How/Why AI: I used ChatGPT to understand the keyboard CSS, then help add a simple Start screen and dropdown
+               without changing how the Wordle board was styled.
+2. Prompts: I asked about the keyboard rules, including "flex: 1;" and "flex: 1.6;".
+            "Use the existing game’s visual style as a reference for the background, typography, and colors."
+            "On narrow screens, keep the buttons comfortably sized and in order."
+3. Validation/Revision: I asked what the key sizing rules did before keeping them. I did
+                        browser checks at desktop and narrow widths, then revised the layout when Adventure was covered.
+4. Challenges/Limitations: The dropdown needed spacing that kept the hover area connected, and the Start buttons
+                           needed to fit on small screens without covering each other.
+*/
+
 /* 'body' targets the body element in HTML*/
 body {
     /* body makes the front Arial and the text center aligned*/
@@ -111,22 +128,25 @@ body {
     background-color: #bfc2c6;
 }
 
+/* show Easy Mode Free Letter as unavailable until the game allows another reveal - RPM 11.16 */
 .control-button[aria-disabled="true"] {
     color: #52565a;
     background-color: #e3e5e7;
     cursor: default;
 }
 
+/* keep the start screen separate from the actual game board styling - RPM 11.15 */
 .start-page main {
     padding: clamp(2rem, 13vh, 8rem) 0.75rem 1rem;
 }
 
+/* leave room under the WORDLE heading for the menu buttons - RPM 11.15 */
 .start-page h1 {
     margin: 0 0 2rem;
     font-size: clamp(2.25rem, 8vw, 3.5rem);
     letter-spacing: 0.08em;
 }
-
+/* keep Start, Multiplayer, and Adventure together and let them wrap on small screens - RPM 11.15 */
 .start-page .start-actions {
     display: flex;
     flex-wrap: wrap;
@@ -146,6 +166,7 @@ body {
     font-size: clamp(0.875rem, 3vw, 1rem);
 }
 
+/* anchor the dropdown to the Start button instead of moving the other buttons - RPM 11.15 */
 .start-page .start-controls {
     position: relative;
 }
@@ -156,16 +177,17 @@ body {
     inset-inline: 0;
     min-width: min(8rem, calc(100vw - 2.5rem));
     z-index: 1;
-    /* keep the gap in the same hover area as the button and the options */
+    /* keep the gap in the same hover area as the button and the options - RPM 11.15 */
     padding-top: 0.5rem;
 }
-
+/* show the mode options in a short animated list below Start - RPM 11.15 */
 .start-page .mode-options {
     display: grid;
     gap: 0.375rem;
     animation: reveal-wordle-modes 180ms ease-out;
 }
 
+/* give the Start menu options the same simple button style - RPM 11.15 */
 .start-page .start-option {
     display: grid;
     place-items: center;
@@ -188,18 +210,20 @@ body {
     background-color: #bfc2c6;
 }
 
+/* make keyboard focus easier to see on the mode options - RPM 11.15 */
 .start-page .start-option:focus-visible {
     outline: 2px solid #1a1a1b;
     outline-offset: 2px;
 }
 
+/* move the controls into two columns when the screen is very narrow - RPM 11.15 */
 @media (max-width: 319px) {
     .start-page .start-actions {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 9rem));
     }
 
-    /* reserve the space below start for its dropdown */
+    /* reserve the space below start for its dropdown - RPM 11.15 */
     .start-page .start-actions > button:last-child {
         grid-column: 2;
     }
@@ -209,6 +233,7 @@ body {
     }
 }
 
+/* briefly slide and fade the dropdown when it opens - RPM 11.15 */
 @keyframes reveal-wordle-modes {
     from {
         opacity: 0;
@@ -220,6 +245,7 @@ body {
     }
 }
 
+/* skip the animation for players who prefer reduced motion - RPM 11.15 */
 @media (prefers-reduced-motion: reduce) {
     .start-page .mode-options {
         animation: none;
