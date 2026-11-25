@@ -1,5 +1,5 @@
 # Prolouge
-'''
+"""
 app.py runs the Flask side of Wordle. Ruben Pino-Martinez worked on the menu route, game route, and mode route. - RPM 11.15
 The page routes take browser requests and return the menu or game page. - RPM 11.15
 The game API takes a mode, game ID, or guess and returns JSON for the browser. - RPM 11.4
@@ -14,13 +14,14 @@ Generative ARtificial Intelligence Usage Documentation and Listing:
                         I also chose the newer Sprint 2 requirements, specifically "players request letters with a Free Letter button", instead of having letters revealed automatically. - RPM 11.16
 4. Challenges/Limitations: The Flask routes were initially assigned to the wrong functions, which caused request errors. I also investigated why Easy Mode stopped at
                             3/5 or 4/5 reveals and learned that previously known letters and repeated letters could reduce the number of available reveals. - RPM 11.16
-'''
-
+"""
 
 from flask import Flask, abort, render_template, jsonify, request
 from threading import Lock
 from uuid import uuid4
+from adventure import calcDifficulty, getDiffecullty
 import game
+import autoGuess
 
 # set up the Flask app so it can handle browser requests - RPM 11.3
 app = Flask(__name__)
@@ -31,7 +32,12 @@ games = {}
 
 MAX_GUESSES = 6  # caps the game at six accepted guesses - RPM 11.4
 MAX_FREE_LETTERS = 5  # caps Easy Mode at five successful reveals - RPM 11.16
-GAME_MODES = {"classic": "Classic Mode", "easy": "Easy Mode", "hard": "Hard Mode"}  # maps mode keys to labels - RPM 11.16
+GAME_MODES = {
+    "classic": "Classic Mode",
+    "adventure": "Adventure Mode",
+    "easy": "Easy Mode",
+    "hard": "Hard Mode",
+}  # maps mode keys to labels - RPM 11.16
 
 
 # show the start menu when the player first opens Wordle - RPM 11.15
@@ -43,7 +49,10 @@ def home():  # renders the Jinja menu template - RPM 11.15
 # open the game board in the mode the player picked - RPM 11.15
 @app.route("/play")
 def play():  # returns the game template or a 400 error - RPM 11.15
-    mode = request.args.get("mode", "classic")  # reads the mode query parameter, defaults to Classic - RPM 11.16
+    mode = request.args.get(
+        "mode",
+        "classic",
+    )  # reads the mode query parameter, defaults to Classic - RPM 11.16
     if mode not in GAME_MODES:
         abort(400, description="Unknown game mode")
     return render_template("index.html", mode=mode, mode_label=GAME_MODES[mode])
@@ -53,7 +62,9 @@ def play():  # returns the game template or a 400 error - RPM 11.15
 @app.route("/api/guess", methods=["POST"])
 def submit_guess():  # takes JSON game ID and guess, returns JSON feedback or a 400 - RPM 11.4
     # get the game ID and word the player sent - RPM 11.4
-    data = request.get_json(silent=True)  # parses JSON and returns None when parsing fails - RPM 11.4
+    data = request.get_json(
+        silent=True
+    )  # parses JSON and returns None when parsing fails - RPM 11.4
 
     # send back an error if the request didn't give us a JSON object - RPM 11.4
     if not isinstance(data, dict):
@@ -78,30 +89,44 @@ def submit_guess():  # takes JSON game ID and guess, returns JSON feedback or a 
 
 
 # use the submitted word and saved game to score a guess or explain why it was rejected - RPM 11.16
-def check_guess(guess, current_game):  # updates the game state and returns JSON - RPM 11.16
+def check_guess(
+    guess, current_game
+):  # updates the game state and returns JSON - RPM 11.16
     # stop here if the player already finished the game - RPM 11.4
     if current_game.get("finished", False):
         return jsonify({"valid": False, "message": "Game already finished"}), 400
 
     # reuse Eden's word check for the dictionary and past guesses - RPM 11.4
-    if not game.ValidateGuess(guess, current_game["guesses"]):  # passes in the word and guess history - RPM 11.4
+    if not game.ValidateGuess(
+        guess, current_game["guesses"]
+    ):  # passes in the word and guess history - RPM 11.4
         return jsonify({"valid": False, "message": "Invalid or repeated word"}), 400
 
     # make the player use earlier clues when their game is in Hard Mode - RPM 11.16
-    if current_game.get("mode", "classic") == "hard":  # applies clue checks using the saved mode - RPM 11.16
+    if (
+        current_game.get("mode", "classic") == "hard"
+    ):  # applies clue checks using the saved mode - RPM 11.16
         message = game.HardModeError(
             guess, current_game["guesses"], current_game["answer"]
         )
         if message:
-            return jsonify({"valid": False, "message": message}), 400  # sends the clue violation back as a 400 - RPM 11.16
+            return jsonify(
+                {"valid": False, "message": message}
+            ), 400  # sends the clue violation back as a 400 - RPM 11.16
 
     # score the accepted word with the team's game code and save it as one try - RPM 11.4
-    colors = game.Guess(guess, current_game["answer"])  # gets a feedback value for each of the five letters - RPM 11.4
-    current_game["guesses"].append(guess)  # adds the word to the accepted guesses - RPM 11.4
+    colors = game.Guess(
+        guess, current_game["answer"]
+    )  # gets a feedback value for each of the five letters - RPM 11.4
+    current_game["guesses"].append(
+        guess
+    )  # adds the word to the accepted guesses - RPM 11.4
 
     # see if they got the word or ran out of guesses - RPM 11.4
     won = guess == current_game["answer"]
-    game_over = won or len(current_game["guesses"]) >= MAX_GUESSES  # checks for a win or the guess limit - RPM 11.4
+    game_over = (
+        won or len(current_game["guesses"]) >= MAX_GUESSES
+    )  # checks for a win or the guess limit - RPM 11.4
 
     if game_over:
         current_game["finished"] = True  # sets the flag later requests check - RPM 11.4
@@ -116,7 +141,9 @@ def check_guess(guess, current_game):  # updates the game state and returns JSON
     # remember the green and yellow letters so Free Letter won't give them out again - RPM 11.16
     if current_game["mode"] == "easy":
         current_game["known_letters"].update(
-            letter for letter, color in zip(guess, colors) if color >= 2  # 2 = yellow, 3 = green - RPM 11.16
+            letter
+            for letter, color in zip(guess, colors)
+            if color >= 2  # 2 = yellow, 3 = green - RPM 11.16
         )
         result["free_letters"] = free_letter_state(current_game)
 
@@ -134,7 +161,9 @@ def start_game():  # takes an optional JSON mode, returns the new game info or a
         return jsonify({"valid": False, "message": "Invalid Request"}), 400
 
     # make sure the requested mode is one we support - RPM 11.16
-    mode = data.get("mode", "classic")  # uses Classic when the mode key is missing - RPM 11.16
+    mode = data.get(
+        "mode", "classic"
+    )  # uses Classic when the mode key is missing - RPM 11.16
     if not isinstance(mode, str) or mode not in GAME_MODES:
         return jsonify({"valid": False, "message": "Unknown game mode"}), 400
 
@@ -143,7 +172,13 @@ def start_game():  # takes an optional JSON mode, returns the new game info or a
         game.LoadLists()
     # use the random answer picker we already have in game.py - RPM 11.3
     answer = game.GetRandomAnswer()
-
+    # Daniel Van Dalsem 11/25/2026
+    print(mode)
+    if mode == "adventure":
+        result = getDiffecullty()
+        print(result)
+        answer = getDiffecullty()[0][0]
+        print(answer)
     # give this game its own ID and keep its details on the server - RPM 11.3
     game_id = uuid4().hex  # turns a new UUID into a hex string - RPM 11.3
     current_game = {
@@ -155,8 +190,12 @@ def start_game():  # takes an optional JSON mode, returns the new game info or a
     result = {"game_id": game_id, "mode": mode, "message": "Game started"}
     # start Easy Mode with no known letters and no free letters used yet - RPM 11.16
     if mode == "easy":
-        current_game["known_letters"] = set()  # stores distinct letters learned from clues or reveals - RPM 11.16
-        current_game["revealed_letters"] = []  # stores letters given out by the Free Letter button - RPM 11.16
+        current_game["known_letters"] = (
+            set()
+        )  # stores distinct letters learned from clues or reveals - RPM 11.16
+        current_game[
+            "revealed_letters"
+        ] = []  # stores letters given out by the Free Letter button - RPM 11.16
         result["free_letters"] = free_letter_state(current_game)
     games[game_id] = current_game  # stores the new session under its game ID - RPM 11.3
     return jsonify(result)
@@ -216,8 +255,12 @@ def reveal_letter():  # takes a JSON game ID and returns a JSON result - RPM 11.
             current_game["answer"], current_game["known_letters"]
         )
         # save the reveal so it counts toward the limit and can't come up again - RPM 11.16
-        current_game["revealed_letters"].append(letter)  # adds one successful reveal to the count - RPM 11.16
-        current_game["known_letters"].add(letter)  # adds the letter to the set excluded from future reveals - RPM 11.16
+        current_game["revealed_letters"].append(
+            letter
+        )  # adds one successful reveal to the count - RPM 11.16
+        current_game["known_letters"].add(
+            letter
+        )  # adds the letter to the set excluded from future reveals - RPM 11.16
         return jsonify(
             {
                 "valid": True,
@@ -248,16 +291,9 @@ def get_hint():
                 {"valid": False, "message": "Game already finished", "hint": False}
             ), 400
 
-        hint = game.Hint(
-            current_game["answer"]
-        )
-        
-        return jsonify(
-            {
-                "valid": True,
-                "hint": hint
-            }
-        )
+        hint = game.Hint(current_game["answer"])
+
+        return jsonify({"valid": True, "hint": hint})
 
 
 if __name__ == "__main__":

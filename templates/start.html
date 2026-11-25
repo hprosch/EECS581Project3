@@ -13,13 +13,16 @@ Generative Artificial Intelligence Usage Documentation and Listing:
 4. Challenges/Limitations: The dropdown had to stay open while moving the mouse from Start to Hard Mode. The layout also needed adjusting so the dropdown would not cover Adventure on narrow screens. Multiplayer and Adventure are still placeholders. - RPM 11.15
 -->
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wordle</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='start.js') }}" defer></script> <!-- loads the dropdown behavior without running the gameplay script - RPM 11.15 -->
+    <script src="{{ url_for('static', filename='start.js') }}" defer></script>
+    <!-- loads the dropdown behavior without running the gameplay script - RPM 11.15 -->
 </head>
+
 <body class="start-page">
     <!-- keep the Wordle title and start controls on a separate landing page - RPM 11.15 -->
     <main>
@@ -28,22 +31,32 @@ Generative Artificial Intelligence Usage Documentation and Listing:
         <div class="start-actions">
             <!-- keep the Start button and its mode menu together - RPM 11.15 -->
             <div class="start-controls">
-                <button type="button" class="start-option" id="start-button" aria-expanded="false" aria-controls="mode-options">Start</button> <!-- identifies the dropdown and starts as collapsed - RPM 11.15 -->
+                <button type="button" class="start-option" id="start-button" aria-expanded="false"
+                    aria-controls="mode-options">Start</button>
+                <!-- identifies the dropdown and starts as collapsed - RPM 11.15 -->
                 <!-- hide the game modes until Start is opened - RPM 11.15 -->
-                <div class="mode-dropdown" id="mode-options" hidden> <!-- start.js controls when the hidden menu is shown - RPM 11.15 -->
+                <div class="mode-dropdown" id="mode-options" hidden>
+                    <!-- start.js controls when the hidden menu is shown - RPM 11.15 -->
                     <div class="mode-options">
-                        <a class="start-option" href="{{ url_for('play') }}">Classic Mode</a> <!-- opens the normal game with Classic as the default - RPM 11.15 -->
+                        <a class="start-option" href="{{ url_for('play') }}">Classic Mode</a>
+                        <!-- opens the normal game with Classic as the default - RPM 11.15 -->
                         <!-- Easy and Hard now open playable modes instead of coming-soon messages - RPM 11.16 -->
-                        <a class="start-option" href="{{ url_for('play', mode='easy') }}">Easy Mode</a> <!-- sends easy in the gameplay URL - RPM 11.16 -->
-                        <a class="start-option" href="{{ url_for('play', mode='hard') }}">Hard Mode</a> <!-- sends hard in the gameplay URL - RPM 11.16 -->
+                        <a class="start-option" href="{{ url_for('play', mode='easy') }}">Easy Mode</a>
+                        <!-- sends easy in the gameplay URL - RPM 11.16 -->
+                        <a class="start-option" href="{{ url_for('play', mode='hard') }}">Hard Mode</a>
+                        <!-- sends hard in the gameplay URL - RPM 11.16 -->
+
                     </div>
                 </div>
             </div>
             <!-- keep these as placeholders until the other game types are implemented - RPM 11.15 -->
-            <button type="button" class="start-option">Multiplayer</button> <!-- no link or game action yet - RPM 11.15 -->
-            <button type="button" class="start-option">Adventure</button> <!-- no link or game action yet - RPM 11.15 -->
+            <button type="button" class="start-option">Multiplayer</button>
+            <!-- no link or game action yet - RPM 11.15 -->
+            <a type="button" class="start-option" href="{{ url_for('play', mode='adventure') }}">Adventure</a>
+            <!-- no link or game action yet - RPM 11.15 -->
         </div>
         <p id="start-status" role="status"></p>
     </main>
 </body>
+
 </html>
