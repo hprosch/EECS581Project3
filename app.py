@@ -16,6 +16,9 @@ Generative ARtificial Intelligence Usage Documentation and Listing:
                             3/5 or 4/5 reveals and learned that previously known letters and repeated letters could reduce the number of available reveals. - RPM 11.16
 """
 
+import json
+from pathlib import Path
+
 from flask import Flask, abort, render_template, jsonify, request
 from threading import Lock
 from uuid import uuid4
@@ -175,9 +178,13 @@ def start_game():  # takes an optional JSON mode, returns the new game info or a
     # Daniel Van Dalsem 11/25/2026
     print(mode)
     if mode == "adventure":
-        result = getDiffecullty()
+        cfile = Path("./adventure_results.json")
+        answers = []
+        if cfile.exists():
+            answers = json.loads(cfile.read_text())
+        result = getDiffecullty(answers, True)
         print(result)
-        answer = getDiffecullty()[0][0]
+        answer = result[0][0]
         print(answer)
     # give this game its own ID and keep its details on the server - RPM 11.3
     game_id = uuid4().hex  # turns a new UUID into a hex string - RPM 11.3
